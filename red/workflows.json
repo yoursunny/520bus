@@ -947,7 +947,7 @@
         "type": "function",
         "z": "6d2a1121.6e356",
         "name": "get stopId",
-        "func": "msg.stopId = msg.stopInfo[0];\nmsg.stopDir = msg.stopInfo[1];\nmsg.stopFullName = msg.stopInfo[2];\nmsg.select = '#toolsContentLeftInterior tr.next-bus:contains(' + msg.stopDir + ') td:nth-child(4)';\nmsg.url = 'https://vps3.yoursunny.com/suntran-proxy/hiwire?.a=iNextBusResults&StopId=' + msg.stopId;\n\n// XXX\n//msg.url += '&Date=01-13-2017';\n//msg.select = '#toolsContentLeftInterior tr.next-bus:contains(' + msg.stopDir + ') td:nth-child(3)';\n\nreturn msg",
+        "func": "var urlBase = 'http://infoweb.suntran.com';\n\nmsg.stopId = msg.stopInfo[0];\nmsg.stopDir = msg.stopInfo[1];\nmsg.stopFullName = msg.stopInfo[2];\nmsg.select = '#toolsContentLeftInterior tr.next-bus:contains(' + msg.stopDir + ') td:nth-child(4)';\nmsg.url = urlBase + '/hiwire?.a=iNextBusResults&StopId=' + msg.stopId;\n\nreturn msg",
         "outputs": 1,
         "noerr": 0,
         "x": 470,

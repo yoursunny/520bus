@@ -1,0 +1,1155 @@
+[
+    {
+        "id": "c11cf734.fe8e28",
+        "type": "tab",
+        "label": "Alexa 520bus"
+    },
+    {
+        "id": "6d2a1121.6e356",
+        "type": "subflow",
+        "name": "get departures",
+        "info": "",
+        "in": [
+            {
+                "x": 81,
+                "y": 46,
+                "wires": [
+                    {
+                        "id": "9136ecb.30b981"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1094,
+                "y": 193,
+                "wires": [
+                    {
+                        "id": "a38cff3e.3305d",
+                        "port": 0
+                    },
+                    {
+                        "id": "125360f6.c97e3f",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 1097,
+                "y": 367,
+                "wires": [
+                    {
+                        "id": "fe25fe88.e808b",
+                        "port": 1
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "dc14fea.aa89a",
+        "type": "subflow",
+        "name": "collect route and stop",
+        "info": "",
+        "in": [
+            {
+                "x": 49,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "4ed487c4.fbdac8"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 934,
+                "y": 755,
+                "wires": [
+                    {
+                        "id": "c9b5a48e.993068",
+                        "port": 1
+                    },
+                    {
+                        "id": "eee6d549.9df718",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 1077.5,
+                "y": 354.5,
+                "wires": [
+                    {
+                        "id": "81cdf4a1.c78638",
+                        "port": 0
+                    },
+                    {
+                        "id": "7ddf4f8c.f9b0b",
+                        "port": 0
+                    },
+                    {
+                        "id": "33b2cd2e.a9b962",
+                        "port": 0
+                    },
+                    {
+                        "id": "a16823a2.69333",
+                        "port": 0
+                    },
+                    {
+                        "id": "759c1baf.d5fee4",
+                        "port": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "c935293b.c433c8",
+        "type": "http in",
+        "z": "c11cf734.fe8e28",
+        "name": "alexa webhook",
+        "url": "/alexa-webhook",
+        "method": "post",
+        "swaggerDoc": "",
+        "x": 110,
+        "y": 45,
+        "wires": [
+            [
+                "154b4fdc.6029d",
+                "85b6ad0d.a2a"
+            ]
+        ]
+    },
+    {
+        "id": "939371ab.1b2d7",
+        "type": "http response",
+        "z": "c11cf734.fe8e28",
+        "name": "alexa response",
+        "x": 1138,
+        "y": 225,
+        "wires": []
+    },
+    {
+        "id": "2eccfa83.8540f6",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "prepare speech output",
+        "func": "msg.resp = {\n  \"version\": \"1.0\",\n  \"response\": {\n    \"outputSpeech\": {\n      \"type\": \"PlainText\",\n      \"text\": msg.speech\n    },\n    \"shouldEndSession\": msg.wantEndSession\n  },\n  \"sessionAttributes\": msg.alexaSession\n};\n\nif (msg.card) {\n    msg.resp.response.card = msg.card;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 721,
+        "y": 119,
+        "wires": [
+            [
+                "3cc39a8f.c80ff6"
+            ]
+        ]
+    },
+    {
+        "id": "34128ee3.9b9a02",
+        "type": "switch",
+        "z": "c11cf734.fe8e28",
+        "name": "check appid",
+        "property": "input.session.application.applicationId",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "amzn1.ask.skill.650bc0e5-fba5-42d3-ba1a-e611bebfed93",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 142,
+        "y": 176,
+        "wires": [
+            [
+                "5eb8af68.46b99"
+            ]
+        ]
+    },
+    {
+        "id": "ddff5e23.26aa6",
+        "type": "json",
+        "z": "c11cf734.fe8e28",
+        "name": "JSON encode",
+        "x": 934,
+        "y": 220,
+        "wires": [
+            [
+                "939371ab.1b2d7"
+            ]
+        ]
+    },
+    {
+        "id": "4c368e1a.d0f04",
+        "type": "debug",
+        "z": "c11cf734.fe8e28",
+        "name": "debug alexa output",
+        "active": true,
+        "console": "false",
+        "complete": "true",
+        "x": 1087,
+        "y": 103,
+        "wires": []
+    },
+    {
+        "id": "5eb8af68.46b99",
+        "type": "switch",
+        "z": "c11cf734.fe8e28",
+        "name": "dispatch request type",
+        "property": "input.request.type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "LaunchRequest",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "IntentRequest",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "SessionEndedRequest",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 3,
+        "x": 153,
+        "y": 248,
+        "wires": [
+            [
+                "f631362d.aeedd8"
+            ],
+            [
+                "a9a6be4f.ee079"
+            ],
+            [
+                "10db98bb.86b697"
+            ]
+        ]
+    },
+    {
+        "id": "b200c517.5c66c8",
+        "type": "switch",
+        "z": "c11cf734.fe8e28",
+        "name": "dispatch intent",
+        "property": "input.request.intent.name",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "AMAZON.HelpIntent",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "RouteIntent",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "StopNameIntent",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 3,
+        "x": 137,
+        "y": 430,
+        "wires": [
+            [],
+            [
+                "87260479.fe1ea8"
+            ],
+            [
+                "87260479.fe1ea8"
+            ]
+        ]
+    },
+    {
+        "id": "d1c476ec.f87958",
+        "type": "change",
+        "z": "c11cf734.fe8e28",
+        "name": "set resp",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "resp",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1045,
+        "y": 149,
+        "wires": [
+            [
+                "ddff5e23.26aa6"
+            ]
+        ]
+    },
+    {
+        "id": "154b4fdc.6029d",
+        "type": "debug",
+        "z": "c11cf734.fe8e28",
+        "name": "debug alexa input",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 378,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "85b6ad0d.a2a",
+        "type": "change",
+        "z": "c11cf734.fe8e28",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "input",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 145,
+        "y": 117,
+        "wires": [
+            [
+                "34128ee3.9b9a02"
+            ]
+        ]
+    },
+    {
+        "id": "18cdd1a2.28a79e",
+        "type": "http request",
+        "z": "6d2a1121.6e356",
+        "name": "invoke iNextBusResults",
+        "method": "GET",
+        "ret": "txt",
+        "url": "",
+        "tls": "",
+        "x": 192,
+        "y": 220,
+        "wires": [
+            [
+                "a6e8a940.f48198",
+                "a3b79e04.cec43"
+            ]
+        ]
+    },
+    {
+        "id": "a6e8a940.f48198",
+        "type": "html",
+        "z": "6d2a1121.6e356",
+        "name": "extract departures",
+        "tag": "",
+        "ret": "text",
+        "as": "single",
+        "x": 493,
+        "y": 189,
+        "wires": [
+            [
+                "a38cff3e.3305d"
+            ]
+        ]
+    },
+    {
+        "id": "a38cff3e.3305d",
+        "type": "function",
+        "z": "6d2a1121.6e356",
+        "name": "transform time",
+        "func": "msg.departures = msg.payload.map(function(t) {\n    var m = t.match(/([0-9]+):([0-9]+)([ap])/);\n    if (m) {\n        t = m[1] + ' ' + m[2] + ' ' + m[3].toUpperCase() + 'M';\n    }\n    return t;\n});\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 731,
+        "y": 191,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a3b79e04.cec43",
+        "type": "html",
+        "z": "6d2a1121.6e356",
+        "name": "extract error",
+        "tag": "#msg .ErrMsg",
+        "ret": "text",
+        "as": "multi",
+        "x": 472,
+        "y": 302,
+        "wires": [
+            [
+                "fe25fe88.e808b"
+            ]
+        ]
+    },
+    {
+        "id": "10db98bb.86b697",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "prepare end output",
+        "func": "msg.resp = {\n  \"version\": \"1.0\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 714,
+        "y": 162,
+        "wires": [
+            [
+                "3cc39a8f.c80ff6"
+            ]
+        ]
+    },
+    {
+        "id": "3cc39a8f.c80ff6",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "nop",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 921,
+        "y": 117,
+        "wires": [
+            [
+                "4c368e1a.d0f04",
+                "d1c476ec.f87958"
+            ]
+        ]
+    },
+    {
+        "id": "f631362d.aeedd8",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "launch prompt",
+        "func": "msg.speech = 'I can help you check Sun Tran bus and Sun Link streetcar departure times. Which bus route?';\nmsg.wantEndSession = false;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 407,
+        "y": 125,
+        "wires": [
+            [
+                "2eccfa83.8540f6"
+            ]
+        ]
+    },
+    {
+        "id": "fb9b225e.a3476",
+        "type": "ibmiot out",
+        "z": "c11cf734.fe8e28",
+        "authentication": "boundService",
+        "apiKey": "",
+        "outputType": "cmd",
+        "deviceId": "LCD",
+        "deviceType": "LCD",
+        "eventCommandType": "refresh",
+        "format": "json",
+        "data": "{}",
+        "qos": 0,
+        "name": "IBM IoT",
+        "service": "registered",
+        "x": 1078,
+        "y": 524,
+        "wires": []
+    },
+    {
+        "id": "51b70b6a.60f924",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "countdown LCD",
+        "func": "var utcOffset = -7 * 3600000;\nvar now = new Date(Date.now() + utcOffset);\n\nfunction joinTimes(departures) {\n    if (!departures || departures.length == 0) {\n        return 'ended';\n    }\n\n    for (var i = 0; i < departures.length; ++i) {\n        var targetTime = departures[i].split(' ');\n        var t = new Date(now);\n        t.setHours(parseInt(targetTime[0], 10) + (targetTime[2] == 'PM' ? 12 : 0));\n        t.setMinutes(parseInt(targetTime[1], 10));\n        var remaining = Math.floor((t - now) / 60000);\n        if (remaining >= 0) {\n            return '' + remaining + 'min';\n        }\n    }\n\n    return 'ended';\n}\n\nmsg.payload = {};\nmsg.payload.L1 = msg.route + ' ' + msg.stopFullName;\nmsg.payload.L2 = msg.stopInfos[0][1][0] + ' ' + joinTimes(msg.departures1);\nif (msg.stopInfos.length > 1) {\n    msg.payload.L2 += ' ' + msg.stopInfos[1][1][0] + ' ' + joinTimes(msg.departures2);\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 642,
+        "y": 574,
+        "wires": [
+            [
+                "5a2a9428.e254bc",
+                "fc154ba0.54a468",
+                "d9229ca.485a56"
+            ]
+        ]
+    },
+    {
+        "id": "5a2a9428.e254bc",
+        "type": "json",
+        "z": "c11cf734.fe8e28",
+        "name": "JSON encode",
+        "x": 849,
+        "y": 523,
+        "wires": [
+            [
+                "fb9b225e.a3476"
+            ]
+        ]
+    },
+    {
+        "id": "a9a6be4f.ee079",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "initialize alexaSession",
+        "func": "msg.alexaSession = msg.input.session.attributes || {};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 157,
+        "y": 364,
+        "wires": [
+            [
+                "b200c517.5c66c8"
+            ]
+        ]
+    },
+    {
+        "id": "fc154ba0.54a468",
+        "type": "debug",
+        "z": "c11cf734.fe8e28",
+        "name": "debug LCD",
+        "active": false,
+        "console": "false",
+        "complete": "true",
+        "x": 928,
+        "y": 594,
+        "wires": []
+    },
+    {
+        "id": "d9229ca.485a56",
+        "type": "delay",
+        "z": "c11cf734.fe8e28",
+        "name": "delay 1min",
+        "pauseType": "delay",
+        "timeout": "15",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 192,
+        "y": 700,
+        "wires": [
+            [
+                "b49ee79f.25c338"
+            ]
+        ]
+    },
+    {
+        "id": "b07b7b9d.b5fd88",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "find slots",
+        "func": "var intentName = msg.input.request.intent.name;\n\nfunction getSlot(slotId) {\n    var slot = msg.input.request.intent.slots[slotId];\n    if (slot && slot.value != '?') {\n        return slot.value;\n    }\n    return null;\n}\n\nvar route = getSlot('route');\nif (!route) {\n    route = msg.alexaSession.route;\n}\nif (route) {\n    route = route.toLowerCase();\n    if (route.indexOf('link') >= 0 || route.indexOf('streetcar') >= 0) {\n        route = '700';\n    }\n}\n\nvar stopName = getSlot('stopname');\n\nmsg.route = msg.alexaSession.route = route;\nmsg.stopName = stopName;\nmsg.wantEndSession = true;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 187,
+        "y": 251,
+        "wires": [
+            [
+                "eb36e815.30fe08"
+            ]
+        ]
+    },
+    {
+        "id": "eb36e815.30fe08",
+        "type": "switch",
+        "z": "dc14fea.aa89a",
+        "name": "has route number?",
+        "property": "route",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 2,
+        "x": 198,
+        "y": 311,
+        "wires": [
+            [
+                "56497bdf.e2c604"
+            ],
+            [
+                "81cdf4a1.c78638"
+            ]
+        ]
+    },
+    {
+        "id": "b63dd303.6959d",
+        "type": "switch",
+        "z": "dc14fea.aa89a",
+        "name": "has stopInfo?",
+        "property": "stopInfos",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 2,
+        "x": 412,
+        "y": 499,
+        "wires": [
+            [
+                "2a44f2ed.45abde"
+            ],
+            [
+                "a16823a2.69333"
+            ]
+        ]
+    },
+    {
+        "id": "81cdf4a1.c78638",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "prompt route",
+        "func": "msg.speech = 'Which bus route?';\nmsg.wantEndSession = false;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 761,
+        "y": 221,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "33b2cd2e.a9b962",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "prompt stop",
+        "func": "msg.speech = \"Which bus stop?\";\nmsg.wantEndSession = false;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 754,
+        "y": 371,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "759c1baf.d5fee4",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "fetch failed",
+        "func": "msg.speech = 'Sorry, but Sun Tran service is unavailable. Please try again later.';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 883,
+        "y": 509,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "56497bdf.e2c604",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "use stop table",
+        "func": "msg.stopTable = msg.stopTables[msg.route];\nmsg.stopTables = null;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 191,
+        "y": 371,
+        "wires": [
+            [
+                "8e449e40.5398b"
+            ]
+        ]
+    },
+    {
+        "id": "c04e92c0.fb665",
+        "type": "switch",
+        "z": "dc14fea.aa89a",
+        "name": "has stop name?",
+        "property": "stopName",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 2,
+        "x": 190,
+        "y": 438,
+        "wires": [
+            [
+                "b88b3568.1400a8"
+            ],
+            [
+                "33b2cd2e.a9b962"
+            ]
+        ]
+    },
+    {
+        "id": "b88b3568.1400a8",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "pick stopInfo",
+        "func": "msg.stopInfo = null;\n\nObject.keys(msg.stopTable).forEach(function(keyword) {\n    if (msg.stopName.toLowerCase().indexOf(keyword.toLowerCase()) < 0) {\n        return;\n    }\n    msg.stopInfos = msg.stopTable[keyword];\n});\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 191,
+        "y": 494,
+        "wires": [
+            [
+                "b63dd303.6959d"
+            ]
+        ]
+    },
+    {
+        "id": "2a44f2ed.45abde",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "get stop 1",
+        "func": "msg.stopInfo = msg.stopInfos[0];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 166,
+        "y": 625,
+        "wires": [
+            [
+                "fbfbe297.7f0ec"
+            ]
+        ]
+    },
+    {
+        "id": "8e449e40.5398b",
+        "type": "switch",
+        "z": "dc14fea.aa89a",
+        "name": "has stopTable?",
+        "property": "stopTable",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 399,
+        "y": 371,
+        "wires": [
+            [
+                "c04e92c0.fb665"
+            ],
+            [
+                "7ddf4f8c.f9b0b"
+            ]
+        ]
+    },
+    {
+        "id": "7ddf4f8c.f9b0b",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "unsupported route",
+        "func": "msg.speech = 'Sorry, but we currently don\\'t have information about route ' + msg.route + '. Which bus route?';\nmsg.wantEndSession = false;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 772,
+        "y": 294,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a16823a2.69333",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "unsupported stop",
+        "func": "msg.speech = 'Sorry, but we currently don\\'t have information about stop ' + msg.stopName + '. Which bus stop?';\nmsg.wantEndSession = false;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 776,
+        "y": 444,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fbfbe297.7f0ec",
+        "type": "subflow:6d2a1121.6e356",
+        "z": "dc14fea.aa89a",
+        "name": "get departures 1",
+        "x": 382.5,
+        "y": 623.5,
+        "wires": [
+            [
+                "f158f44f.394188"
+            ],
+            [
+                "759c1baf.d5fee4"
+            ]
+        ]
+    },
+    {
+        "id": "87260479.fe1ea8",
+        "type": "subflow:dc14fea.aa89a",
+        "z": "c11cf734.fe8e28",
+        "name": "collect route and stop",
+        "x": 426.5,
+        "y": 437.5,
+        "wires": [
+            [
+                "16b73c8.a7d4fc4",
+                "1bb0fb5f.1babc5"
+            ],
+            [
+                "2eccfa83.8540f6"
+            ]
+        ]
+    },
+    {
+        "id": "16b73c8.a7d4fc4",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "answer",
+        "func": "function joinTimes(departures) {\n    if (!departures || departures.length == 0) {\n        return ' has no service at ' + msg.stopFullName;\n    }\n\n    var b = ' departs ' + msg.stopFullName + ' at ';\n    for (var i = 0; i < departures.length; ++i) {\n        if (i > 0 && i == departures.length - 1) {\n            b += ' and ';\n        }\n        b += departures[i].replace(' 00 ', ' ') + ' ';\n    }\n    return b;\n}\n\nvar routeName = 'route ' + msg.route;\nif (msg.route == '700') {\n    routeName = 'Sun Link';\n}\nmsg.speech = routeName + ' ' + msg.stopInfos[0][1] + joinTimes(msg.departures1);\nif (msg.stopInfos.length > 1) {\n    msg.speech += '; ' + routeName + ' ' + msg.stopInfos[1][1] + joinTimes(msg.departures2);\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 701,
+        "y": 443,
+        "wires": [
+            [
+                "9bcb455b.8a5e28"
+            ]
+        ]
+    },
+    {
+        "id": "9136ecb.30b981",
+        "type": "change",
+        "z": "6d2a1121.6e356",
+        "name": "clear headers",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "headers",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 256,
+        "y": 45,
+        "wires": [
+            [
+                "363ae103.1247ee"
+            ]
+        ]
+    },
+    {
+        "id": "b49ee79f.25c338",
+        "type": "switch",
+        "z": "c11cf734.fe8e28",
+        "name": "is current polling?",
+        "property": "pollingSession",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "_msgid",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 407,
+        "y": 701,
+        "wires": [
+            [
+                "8f0f84f9.b4c728"
+            ]
+        ]
+    },
+    {
+        "id": "1bb0fb5f.1babc5",
+        "type": "change",
+        "z": "c11cf734.fe8e28",
+        "name": "set pollingSession",
+        "rules": [
+            {
+                "t": "set",
+                "p": "pollingSession",
+                "pt": "global",
+                "to": "_msgid",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 207,
+        "y": 585,
+        "wires": [
+            [
+                "51b70b6a.60f924"
+            ]
+        ]
+    },
+    {
+        "id": "4ed487c4.fbdac8",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "stopTables dataset",
+        "func": "var stopTables = {};\nstopTables[1] = \n{\"Downtown\":[[\"16137\",\"North\",\"Downtown\"],[\"16137\",\"South\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"North\",\"Grossetta\"]],\"Pennington\":[[\"10859\",\"North\",\"Pennington\"]],\"6th Av\":[[\"16262\",\"North\",\"6th Av\"]],\"4th Av\":[[\"10861\",\"North\",\"4th Av\"]],\"Euclid and Broadway\":[[\"13604\",\"North\",\"Euclid and Broadway\"]],\"9th St\":[[\"13079\",\"North\",\"9th St\"],[\"14364\",\"South\",\"9th St\"]],\"6th St\":[[\"60\",\"North\",\"6th St\"],[\"65\",\"South\",\"6th St\"]],\"University\":[[\"13080\",\"North\",\"University\"],[\"12923\",\"South\",\"University\"]],\"1st St\":[[\"13081\",\"North\",\"1st St\"],[\"12922\",\"South\",\"1st St\"]],\"Park and Speedway\":[[\"3\",\"North\",\"Park and Speedway\"],[\"16150\",\"South\",\"Park and Speedway\"]],\"Drachman\":[[\"11263\",\"North\",\"Drachman\"],[\"11305\",\"South\",\"Drachman\"]],\"Elm\":[[\"11264\",\"North\",\"Elm\"],[\"11304\",\"South\",\"Elm\"]],\"Waverly\":[[\"11265\",\"North\",\"Waverly\"],[\"11303\",\"South\",\"Waverly\"]],\"Park and Grant\":[[\"11266\",\"North\",\"Park and Grant\"],[\"11302\",\"South\",\"Park and Grant\"]],\"Copper\":[[\"11267\",\"North\",\"Copper\"],[\"11301\",\"South\",\"Copper\"]],\"Park and Glenn\":[[\"11268\",\"North\",\"Park and Glenn\"]],\"Mountain\":[[\"16169\",\"North\",\"Mountain\"],[\"16283\",\"South\",\"Mountain\"]],\"Cherry\":[[\"15296\",\"North\",\"Cherry\"],[\"11298\",\"South\",\"Cherry\"]],\"Campbell\":[[\"4\",\"North\",\"Campbell\"],[\"9\",\"South\",\"Campbell\"]],\"Plumer\":[[\"11272\",\"North\",\"Plumer\"],[\"11296\",\"South\",\"Plumer\"]],\"Tucson\":[[\"11273\",\"North\",\"Tucson\"],[\"11295\",\"South\",\"Tucson\"]],\"Treat\":[[\"11274\",\"North\",\"Treat\"],[\"11294\",\"South\",\"Treat\"]],\"Country Club\":[[\"11275\",\"North\",\"Country Club\"],[\"11293\",\"South\",\"Country Club\"]],\"Edith\":[[\"11276\",\"North\",\"Edith\"],[\"11292\",\"South\",\"Edith\"]],\"Palo Verde\":[[\"11277\",\"North\",\"Palo Verde\"],[\"11291\",\"South\",\"Palo Verde\"]],\"Dodge\":[[\"11278\",\"North\",\"Dodge\"],[\"11290\",\"South\",\"Dodge\"]],\"Alvernon\":[[\"5\",\"North\",\"Alvernon\"],[\"8\",\"South\",\"Alvernon\"]],\"C de Romy\":[[\"14963\",\"North\",\"C de Romy\"]],\"Columbus\":[[\"12805\",\"North\",\"Columbus\"],[\"11288\",\"South\",\"Columbus\"]],\"Desert Av\":[[\"12806\",\"North\",\"Desert Av\"]],\"Swan and Glenn\":[[\"11518\",\"North\",\"Swan and Glenn\"]],\"San Carlos\":[[\"12757\",\"North\",\"San Carlos\"]],\"Swan and Grant\":[[\"248\",\"North\",\"Swan and Grant\"],[\"245\",\"South\",\"Swan and Grant\"]],\"Seneca\":[[\"12758\",\"North\",\"Seneca\"],[\"12749\",\"South\",\"Seneca\"]],\"Pima\":[[\"12760\",\"North\",\"Pima\"],[\"12748\",\"South\",\"Pima\"]],\"Fairmount\":[[\"15011\",\"North\",\"Fairmount\"],[\"12746\",\"South\",\"Fairmount\"]],\"Bellevue\":[[\"12762\",\"North\",\"Bellevue\"]],\"Swan and Speedway\":[[\"249\",\"North\",\"Swan and Speedway\"],[\"244\",\"South\",\"Swan and Speedway\"]],\"3rd St\":[[\"12763\",\"North\",\"3rd St\"]],\"5th St\":[[\"12765\",\"North\",\"5th St\"],[\"12609\",\"South\",\"5th St\"]],\"Burns\":[[\"12766\",\"North\",\"Burns\"],[\"12608\",\"South\",\"Burns\"]],\"Swan and Broadway\":[[\"12767\",\"North\",\"Swan and Broadway\"],[\"12607\",\"South\",\"Swan and Broadway\"]],\"14th St\":[[\"12768\",\"North\",\"14th St\"]],\"17th St\":[[\"15000\",\"North\",\"17th St\"],[\"12605\",\"South\",\"17th St\"]],\"19th St\":[[\"15001\",\"North\",\"19th St\"]],\"22nd St\":[[\"252\",\"North\",\"22nd St\"],[\"242\",\"South\",\"22nd St\"]],\"26th St\":[[\"16260\",\"North\",\"26th St\"]],\"29th St and Swan\":[[\"11827\",\"North\",\"29th St and Swan\"]],\"Belvedere\":[[\"11828\",\"North\",\"Belvedere\"],[\"11758\",\"North\",\"Belvedere\"]],\"Pima College 29th St Campus\":[[\"16281\",\"North\",\"Pima College 29th St Campus\"]],\"29th St\":[[\"14736\",\"North\",\"29th St\"],[\"14736\",\"South\",\"29th St\"]],\"Andrew\":[[\"12602\",\"South\",\"Andrew\"]],\"24th St\":[[\"12603\",\"South\",\"24th St\"]],\"Eastland\":[[\"12604\",\"South\",\"Eastland\"]],\"Scarlett\":[[\"12606\",\"South\",\"Scarlett\"]],\"Hawthorne\":[[\"12610\",\"South\",\"Hawthorne\"]],\"Edison\":[[\"12750\",\"South\",\"Edison\"]],\"Water St\":[[\"12751\",\"South\",\"Water St\"]],\"Glenn and Swan\":[[\"14784\",\"South\",\"Glenn and Swan\"]],\"Sycamore\":[[\"11289\",\"South\",\"Sycamore\"]],\"Park\":[[\"11300\",\"South\",\"Park\"]],\"Euclid and Speedway\":[[\"12921\",\"South\",\"Euclid and Speedway\"]],\"Euclid\":[[\"10925\",\"South\",\"Euclid\"]]};\nstopTables[2] = \n{\"Irvington and 6th Av\":[[\"12633\",\"North\",\"Irvington and 6th Av\"]],\"3rd Av\":[[\"12634\",\"North\",\"3rd Av\"],[\"12709\",\"South\",\"3rd Av\"]],\"1st Av\":[[\"12635\",\"North\",\"1st Av\"],[\"12708\",\"South\",\"1st Av\"]],\"Park Av\":[[\"12637\",\"North\",\"Park Av\"],[\"12707\",\"South\",\"Park Av\"]],\"Mountain\":[[\"12638\",\"North\",\"Mountain\"],[\"12706\",\"South\",\"Mountain\"]],\"Highland\":[[\"12639\",\"North\",\"Highland\"]],\"Cherry\":[[\"12640\",\"North\",\"Cherry\"]],\"Irvington and Campbell\":[[\"14435\",\"North\",\"Irvington and Campbell\"],[\"213\",\"South\",\"Irvington and Campbell\"]],\"Greenway\":[[\"15929\",\"North\",\"Greenway\"],[\"14527\",\"South\",\"Greenway\"]],\"Benson Hwy\":[[\"14694\",\"North\",\"Benson Hwy\"],[\"14697\",\"South\",\"Benson Hwy\"]],\"Treat\":[[\"14529\",\"North\",\"Treat\"],[\"14526\",\"South\",\"Treat\"]],\"Irvington\":[[\"14530\",\"North\",\"Irvington\"]],\"Missouri\":[[\"12689\",\"North\",\"Missouri\"],[\"12654\",\"South\",\"Missouri\"]],\"Michigan\":[[\"15009\",\"North\",\"Michigan\"]],\"La Colina Health Care\":[[\"10941\",\"North\",\"La Colina Health Care\"],[\"10941\",\"South\",\"La Colina Health Care\"]],\"South Campus\":[[\"18\",\"North\",\"South Campus\"],[\"18\",\"South\",\"South Campus\"]],\"Ajo\":[[\"10895\",\"North\",\"Ajo\"],[\"10893\",\"South\",\"Ajo\"]],\"46th St\":[[\"14953\",\"North\",\"46th St\"],[\"14959\",\"South\",\"46th St\"]],\"44th St\":[[\"14954\",\"North\",\"44th St\"],[\"14958\",\"South\",\"44th St\"]],\"Kaibab Vista\":[[\"14955\",\"North\",\"Kaibab Vista\"],[\"14957\",\"South\",\"Kaibab Vista\"]],\"Food Bank\":[[\"10899\",\"North\",\"Food Bank\"]],\"Pinal Vista and Rickey Vista\":[[\"10901\",\"North\",\"Pinal Vista and Rickey Vista\"],[\"10887\",\"South\",\"Pinal Vista and Rickey Vista\"]],\"Coconino Vista\":[[\"10902\",\"North\",\"Coconino Vista\"],[\"10886\",\"South\",\"Coconino Vista\"]],\"Pinal Vista and Forgeus\":[[\"10903\",\"North\",\"Pinal Vista and Forgeus\"],[\"10885\",\"South\",\"Pinal Vista and Forgeus\"]],\"Sunland Vista\":[[\"10904\",\"North\",\"Sunland Vista\"],[\"10884\",\"South\",\"Sunland Vista\"]],\"Pinal Vista\":[[\"10905\",\"North\",\"Pinal Vista\"]],\"Lloyd Vista\":[[\"10906\",\"North\",\"Lloyd Vista\"],[\"10882\",\"South\",\"Lloyd Vista\"]],\"Naco Vista\":[[\"10907\",\"North\",\"Naco Vista\"],[\"10881\",\"South\",\"Naco Vista\"]],\"Hidalgo Vista and Campbell\":[[\"10908\",\"North\",\"Hidalgo Vista and Campbell\"],[\"10880\",\"South\",\"Hidalgo Vista and Campbell\"]],\"Fayette Vista\":[[\"10909\",\"North\",\"Fayette Vista\"]],\"Duvall Vista\":[[\"10910\",\"North\",\"Duvall Vista\"],[\"10878\",\"South\",\"Duvall Vista\"]],\"Cochise Vista\":[[\"10911\",\"North\",\"Cochise Vista\"],[\"10877\",\"South\",\"Cochise Vista\"]],\"36th St and Campbell\":[[\"14053\",\"North\",\"36th St and Campbell\"],[\"10912\",\"North\",\"36th St and Campbell\"],[\"14053\",\"South\",\"36th St and Campbell\"]],\"Quincie\":[[\"14014\",\"North\",\"Quincie\"],[\"14014\",\"South\",\"Quincie\"]],\"Forgeus and 36th St\":[[\"14\",\"North\",\"Forgeus and 36th St\"],[\"10874\",\"South\",\"Forgeus and 36th St\"]],\"Tucson Av\":[[\"16159\",\"North\",\"Tucson Av\"]],\"33rd St and Plumer\":[[\"14379\",\"North\",\"33rd St and Plumer\"]],\"Amalia\":[[\"10870\",\"North\",\"Amalia\"],[\"14328\",\"South\",\"Amalia\"]],\"31st St and Campbell\":[[\"10918\",\"North\",\"31st St and Campbell\"],[\"10869\",\"South\",\"31st St and Campbell\"]],\"Barleycorn\":[[\"10919\",\"North\",\"Barleycorn\"],[\"10868\",\"South\",\"Barleycorn\"]],\"Cherrybell\":[[\"16117\",\"North\",\"Cherrybell\"]],\"Silverlake\":[[\"14913\",\"North\",\"Silverlake\"]],\"Kino\":[[\"16115\",\"North\",\"Kino\"]],\"Santa Rita\":[[\"10922\",\"North\",\"Santa Rita\"]],\"22nd St\":[[\"14864\",\"North\",\"22nd St\"]],\"19th St\":[[\"14370\",\"North\",\"19th St\"]],\"12th St\":[[\"14726\",\"North\",\"12th St\"],[\"10862\",\"South\",\"12th St\"]],\"Euclid\":[[\"10925\",\"North\",\"Euclid\"]],\"Downtown\":[[\"14210\",\"North\",\"Downtown\"],[\"14210\",\"South\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"South\",\"Grossetta\"]],\"Pennington\":[[\"10859\",\"South\",\"Pennington\"]],\"Broadway and 6th Av\":[[\"16262\",\"South\",\"Broadway and 6th Av\"]],\"4th Av\":[[\"10861\",\"South\",\"4th Av\"]],\"18th St\":[[\"14867\",\"South\",\"18th St\"]],\"20th St\":[[\"12938\",\"South\",\"20th St\"]],\"Park\":[[\"10864\",\"South\",\"Park\"]],\"Kino Pw\":[[\"16116\",\"South\",\"Kino Pw\"]],\"Silverlake and Campbell\":[[\"16118\",\"South\",\"Silverlake and Campbell\"]],\"33rd St\":[[\"10871\",\"South\",\"33rd St\"]],\"Norton\":[[\"10872\",\"South\",\"Norton\"]],\"Menor Stv and Forgeus\":[[\"10873\",\"South\",\"Menor Stv and Forgeus\"]],\"36th St and Plumer\":[[\"14369\",\"South\",\"36th St and Plumer\"]],\"Kramer\":[[\"10875\",\"South\",\"Kramer\"]],\"Campbell Av and 36th St\":[[\"10876\",\"South\",\"Campbell Av and 36th St\"]],\"Hidalgo Vista\":[[\"10883\",\"South\",\"Hidalgo Vista\"]],\"Country Club and Rickey Vista\":[[\"14415\",\"South\",\"Country Club and Rickey Vista\"]],\"Ajo and Forgeus\":[[\"10939\",\"South\",\"Ajo and Forgeus\"]],\"Pennsylvania\":[[\"14696\",\"South\",\"Pennsylvania\"]],\"Country Club\":[[\"14525\",\"South\",\"Country Club\"]],\"C Ole\":[[\"14890\",\"South\",\"C Ole\"]]};\nstopTables[3] = \n{\"Pima College West Campus\":[[\"16152\",\"East\",\"Pima College West Campus\"],[\"16152\",\"West\",\"Pima College West Campus\"]],\"La Cholla\":[[\"13680\",\"East\",\"La Cholla\"]],\"Cmo Santiago\":[[\"12583\",\"East\",\"Cmo Santiago\"]],\"Anklam\":[[\"12584\",\"East\",\"Anklam\"],[\"13678\",\"West\",\"Anklam\"]],\"Centenniel\":[[\"12585\",\"East\",\"Centenniel\"]],\"Silverbell\":[[\"13686\",\"East\",\"Silverbell\"],[\"13676\",\"West\",\"Silverbell\"]],\"Westmoreland\":[[\"12436\",\"East\",\"Westmoreland\"]],\"Grande\":[[\"13688\",\"East\",\"Grande\"],[\"130\",\"West\",\"Grande\"]],\"Furr's Cafeterias\":[[\"13689\",\"East\",\"Furr's Cafeterias\"]],\"I-10 Interstate\":[[\"13690\",\"East\",\"I-10 Interstate\"],[\"13671\",\"West\",\"I-10 Interstate\"]],\"St Marys\":[[\"12444\",\"East\",\"St Marys\"]],\"Ashbury Ln\":[[\"13692\",\"East\",\"Ashbury Ln\"]],\"Court Av\":[[\"12446\",\"East\",\"Court Av\"],[\"11172\",\"West\",\"Court Av\"]],\"Downtown\":[[\"14212\",\"East\",\"Downtown\"],[\"14211\",\"West\",\"Downtown\"]],\"6th St\":[[\"11175\",\"East\",\"6th St\"]],\"4th Av\":[[\"13697\",\"East\",\"4th Av\"]],\"Tucson High School\":[[\"13698\",\"East\",\"Tucson High School\"]],\"Euclid\":[[\"11735\",\"East\",\"Euclid\"],[\"16111\",\"West\",\"Euclid\"]],\"Fremont\":[[\"14977\",\"East\",\"Fremont\"]],\"Highland\":[[\"11738\",\"East\",\"Highland\"],[\"15942\",\"West\",\"Highland\"]],\"Cherry\":[[\"11739\",\"East\",\"Cherry\"],[\"11848\",\"West\",\"Cherry\"]],\"Campbell\":[[\"29\",\"East\",\"Campbell\"],[\"16055\",\"West\",\"Campbell\"]],\"Plumer\":[[\"11740\",\"East\",\"Plumer\"],[\"11847\",\"West\",\"Plumer\"]],\"Tucson\":[[\"11741\",\"East\",\"Tucson\"],[\"11846\",\"West\",\"Tucson\"]],\"Treat\":[[\"11742\",\"East\",\"Treat\"],[\"11845\",\"West\",\"Treat\"]],\"Country Club\":[[\"13707\",\"East\",\"Country Club\"],[\"11844\",\"West\",\"Country Club\"]],\"Jones\":[[\"13708\",\"East\",\"Jones\"],[\"13840\",\"West\",\"Jones\"]],\"Palo Verde\":[[\"13709\",\"East\",\"Palo Verde\"],[\"13839\",\"West\",\"Palo Verde\"]],\"Dodge\":[[\"13710\",\"East\",\"Dodge\"],[\"13838\",\"West\",\"Dodge\"]],\"Alvernon\":[[\"30\",\"East\",\"Alvernon\"],[\"23\",\"West\",\"Alvernon\"]],\"Irving\":[[\"13711\",\"East\",\"Irving\"],[\"13837\",\"West\",\"Irving\"]],\"Columbus\":[[\"13712\",\"East\",\"Columbus\"],[\"13836\",\"West\",\"Columbus\"]],\"Belvedere\":[[\"13713\",\"East\",\"Belvedere\"],[\"13834\",\"West\",\"Belvedere\"]],\"Swan\":[[\"13714\",\"East\",\"Swan\"],[\"13833\",\"West\",\"Swan\"]],\"Arcadia\":[[\"13715\",\"East\",\"Arcadia\"],[\"13832\",\"West\",\"Arcadia\"]],\"Rosemont\":[[\"13716\",\"East\",\"Rosemont\"],[\"13831\",\"West\",\"Rosemont\"]],\"Beverly\":[[\"13858\",\"East\",\"Beverly\"],[\"13830\",\"West\",\"Beverly\"]],\"Craycroft\":[[\"13860\",\"East\",\"Craycroft\"],[\"13828\",\"West\",\"Craycroft\"]],\"Van Buren\":[[\"13861\",\"East\",\"Van Buren\"],[\"13827\",\"West\",\"Van Buren\"]],\"Chantilly\":[[\"13862\",\"East\",\"Chantilly\"]],\"Indian House\":[[\"13863\",\"East\",\"Indian House\"],[\"13825\",\"West\",\"Indian House\"]],\"Ruston\":[[\"13864\",\"East\",\"Ruston\"]],\"5th St\":[[\"13403\",\"East\",\"5th St\"]],\"Carondelet\":[[\"13404\",\"East\",\"Carondelet\"],[\"13508\",\"West\",\"Carondelet\"]],\"Broadway\":[[\"22\",\"East\",\"Broadway\"],[\"81\",\"West\",\"Broadway\"]],\"Timrod\":[[\"14056\",\"East\",\"Timrod\"]],\"Eli\":[[\"14058\",\"East\",\"Eli\"]],\"20th St\":[[\"13153\",\"East\",\"20th St\"]],\"22nd St\":[[\"13154\",\"East\",\"22nd St\"],[\"13206\",\"West\",\"22nd St\"]],\"26th St\":[[\"13155\",\"East\",\"26th St\"]],\"29th St\":[[\"11768\",\"East\",\"29th St\"]],\"33rd St\":[[\"11770\",\"East\",\"33rd St\"]],\"Golf Links\":[[\"13159\",\"East\",\"Golf Links\"],[\"14115\",\"West\",\"Golf Links\"]],\"Stella and Wilmot\":[[\"13160\",\"East\",\"Stella and Wilmot\"],[\"13201\",\"West\",\"Stella and Wilmot\"]],\"C Polar\":[[\"14067\",\"East\",\"C Polar\"],[\"14112\",\"West\",\"C Polar\"]],\"Mann\":[[\"13162\",\"East\",\"Mann\"],[\"14822\",\"West\",\"Mann\"]],\"Jessica\":[[\"13163\",\"East\",\"Jessica\"]],\"Kolb\":[[\"32\",\"East\",\"Kolb\"],[\"21\",\"West\",\"Kolb\"]],\"Charlotte\":[[\"13198\",\"East\",\"Charlotte\"],[\"312\",\"West\",\"Charlotte\"]],\"Prudence\":[[\"11878\",\"East\",\"Prudence\"],[\"11872\",\"West\",\"Prudence\"]],\"Marc\":[[\"13166\",\"East\",\"Marc\"],[\"13196\",\"West\",\"Marc\"]],\"Lakeside\":[[\"13168\",\"East\",\"Lakeside\"],[\"13193\",\"West\",\"Lakeside\"]],\"Mead\":[[\"14128\",\"East\",\"Mead\"]],\"Sarnoff\":[[\"13169\",\"East\",\"Sarnoff\"],[\"13192\",\"West\",\"Sarnoff\"]],\"Stella and Magda\":[[\"13170\",\"East\",\"Stella and Magda\"]],\"Cmo Seco\":[[\"14077\",\"East\",\"Cmo Seco\"],[\"14101\",\"West\",\"Cmo Seco\"]],\"Cmo Seco and Magda\":[[\"13172\",\"East\",\"Cmo Seco and Magda\"],[\"13189\",\"West\",\"Cmo Seco and Magda\"]],\"Cmo Seco and Escalante\":[[\"13173\",\"East\",\"Cmo Seco and Escalante\"],[\"13188\",\"West\",\"Cmo Seco and Escalante\"]],\"Av de las Palmas\":[[\"14923\",\"East\",\"Av de las Palmas\"],[\"14924\",\"West\",\"Av de las Palmas\"]],\"Le Beaux\":[[\"14961\",\"East\",\"Le Beaux\"]],\"Escalante and Manitoba\":[[\"14084\",\"East\",\"Escalante and Manitoba\"],[\"14096\",\"West\",\"Escalante and Manitoba\"]],\"Pantano and Escalante\":[[\"12743\",\"East\",\"Pantano and Escalante\"]],\"Dogwood\":[[\"12744\",\"East\",\"Dogwood\"],[\"12614\",\"West\",\"Dogwood\"]],\"Poinciana\":[[\"14887\",\"East\",\"Poinciana\"],[\"12613\",\"West\",\"Poinciana\"]],\"Constant\":[[\"14897\",\"East\",\"Constant\"],[\"14898\",\"West\",\"Constant\"]],\"Pima College East Campus\":[[\"34\",\"East\",\"Pima College East Campus\"],[\"34\",\"West\",\"Pima College East Campus\"]],\"Escalante and Pantano\":[[\"20\",\"West\",\"Escalante and Pantano\"]],\"Le Breque\":[[\"14097\",\"West\",\"Le Breque\"]],\"Morman Dr\":[[\"13191\",\"West\",\"Morman Dr\"]],\"Stella and Manitoba\":[[\"14367\",\"West\",\"Stella and Manitoba\"]],\"Stella and Pantano\":[[\"13194\",\"West\",\"Stella and Pantano\"]],\"Langley\":[[\"13199\",\"West\",\"Langley\"]],\"David Dr\":[[\"14493\",\"West\",\"David Dr\"]],\"C Marte\":[[\"14116\",\"West\",\"C Marte\"]],\"C Herculo\":[[\"14117\",\"West\",\"C Herculo\"]],\"Bellatrix\":[[\"14118\",\"West\",\"Bellatrix\"]],\"Colgate\":[[\"14120\",\"West\",\"Colgate\"]],\"Malvern\":[[\"13209\",\"West\",\"Malvern\"]],\"Scarlett\":[[\"14124\",\"West\",\"Scarlett\"]],\"5th St and Wilmot\":[[\"13823\",\"West\",\"5th St and Wilmot\"]],\"McKinley\":[[\"13826\",\"West\",\"McKinley\"]],\"Woodland\":[[\"16272\",\"West\",\"Woodland\"]],\"Catalina\":[[\"13835\",\"West\",\"Catalina\"]],\"Park Av\":[[\"11736\",\"West\",\"Park Av\"]],\"3rd Av\":[[\"11852\",\"West\",\"3rd Av\"]],\"Herbert Av\":[[\"16102\",\"West\",\"Herbert Av\"]],\"Grossetta\":[[\"10858\",\"West\",\"Grossetta\"]],\"Pso Redondo\":[[\"13856\",\"West\",\"Pso Redondo\"]],\"405 Granada\":[[\"13857\",\"West\",\"405 Granada\"]],\"Granada\":[[\"13670\",\"West\",\"Granada\"]],\"Columbia\":[[\"13672\",\"West\",\"Columbia\"]],\"Melrose Av\":[[\"14457\",\"West\",\"Melrose Av\"]],\"Cuesta\":[[\"13674\",\"West\",\"Cuesta\"]],\"Cherokee\":[[\"13675\",\"West\",\"Cherokee\"]],\"San Rafael\":[[\"13677\",\"West\",\"San Rafael\"]],\"2002 W Anklam\":[[\"16113\",\"West\",\"2002 W Anklam\"]]};\nstopTables[4] = \n{\"Downtown\":[[\"25\",\"East\",\"Downtown\"],[\"25\",\"West\",\"Downtown\"]],\"7th Av\":[[\"14761\",\"East\",\"7th Av\"],[\"11525\",\"West\",\"7th Av\"]],\"Stone\":[[\"12596\",\"East\",\"Stone\"]],\"6th Av\":[[\"11177\",\"East\",\"6th Av\"]],\"4th Av\":[[\"11178\",\"East\",\"4th Av\"],[\"11165\",\"West\",\"4th Av\"]],\"2nd Av\":[[\"11179\",\"East\",\"2nd Av\"],[\"11164\",\"West\",\"2nd Av\"]],\"Euclid\":[[\"11180\",\"East\",\"Euclid\"],[\"11163\",\"West\",\"Euclid\"]],\"Olive Underpass\":[[\"11181\",\"East\",\"Olive Underpass\"],[\"11161\",\"West\",\"Olive Underpass\"]],\"Highland Underpass\":[[\"11182\",\"East\",\"Highland Underpass\"],[\"11344\",\"West\",\"Highland Underpass\"]],\"Warren Underpass\":[[\"11183\",\"East\",\"Warren Underpass\"],[\"11157\",\"West\",\"Warren Underpass\"]],\"Campbell\":[[\"45\",\"East\",\"Campbell\"],[\"41\",\"West\",\"Campbell\"]],\"Plumer\":[[\"11184\",\"East\",\"Plumer\"],[\"11156\",\"West\",\"Plumer\"]],\"Tucson\":[[\"11185\",\"East\",\"Tucson\"],[\"16222\",\"West\",\"Tucson\"]],\"Treat\":[[\"11186\",\"East\",\"Treat\"],[\"11154\",\"West\",\"Treat\"]],\"Country Club\":[[\"11187\",\"East\",\"Country Club\"],[\"11153\",\"West\",\"Country Club\"]],\"Miramonte\":[[\"11188\",\"East\",\"Miramonte\"]],\"Richey\":[[\"11189\",\"East\",\"Richey\"]],\"Dodge\":[[\"11190\",\"East\",\"Dodge\"],[\"11150\",\"West\",\"Dodge\"]],\"Alvernon\":[[\"46\",\"East\",\"Alvernon\"],[\"40\",\"West\",\"Alvernon\"]],\"Arlington\":[[\"11191\",\"East\",\"Arlington\"],[\"11149\",\"West\",\"Arlington\"]],\"Columbus\":[[\"14421\",\"East\",\"Columbus\"],[\"11148\",\"West\",\"Columbus\"]],\"Belvedere\":[[\"11193\",\"East\",\"Belvedere\"]],\"Swan\":[[\"11194\",\"East\",\"Swan\"],[\"11146\",\"West\",\"Swan\"]],\"Arcadia\":[[\"11195\",\"East\",\"Arcadia\"],[\"11145\",\"West\",\"Arcadia\"]],\"Rosemont\":[[\"11196\",\"East\",\"Rosemont\"],[\"11144\",\"West\",\"Rosemont\"]],\"Beverly\":[[\"11197\",\"East\",\"Beverly\"],[\"11143\",\"West\",\"Beverly\"]],\"Craycroft\":[[\"11198\",\"East\",\"Craycroft\"],[\"11142\",\"West\",\"Craycroft\"]],\"Van Buren\":[[\"11200\",\"East\",\"Van Buren\"],[\"11141\",\"West\",\"Van Buren\"]],\"Sahuara\":[[\"11201\",\"East\",\"Sahuara\"],[\"11140\",\"West\",\"Sahuara\"]],\"Sonoita\":[[\"11202\",\"East\",\"Sonoita\"]],\"Rook\":[[\"14372\",\"East\",\"Rook\"]],\"Wilmot\":[[\"47\",\"East\",\"Wilmot\"],[\"11138\",\"West\",\"Wilmot\"]],\"Radisson Hotel\":[[\"11204\",\"East\",\"Radisson Hotel\"],[\"11137\",\"West\",\"Radisson Hotel\"]],\"Natachee\":[[\"11205\",\"East\",\"Natachee\"],[\"11136\",\"West\",\"Natachee\"]],\"Dorado\":[[\"11207\",\"East\",\"Dorado\"],[\"11134\",\"West\",\"Dorado\"]],\"Kolb and Speedway\":[[\"11209\",\"East\",\"Kolb and Speedway\"]],\"3rd St\":[[\"12725\",\"East\",\"3rd St\"],[\"12632\",\"West\",\"3rd St\"]],\"Kolb and 5th St\":[[\"12726\",\"East\",\"Kolb and 5th St\"],[\"12631\",\"West\",\"Kolb and 5th St\"]],\"Kingston\":[[\"11212\",\"East\",\"Kingston\"],[\"11130\",\"West\",\"Kingston\"]],\"K-Mart\":[[\"11213\",\"East\",\"K-Mart\"]],\"Kolb and Broadway\":[[\"11214\",\"East\",\"Kolb and Broadway\"],[\"11129\",\"West\",\"Kolb and Broadway\"]],\"Bonnie Brae\":[[\"12729\",\"East\",\"Bonnie Brae\"],[\"12629\",\"West\",\"Bonnie Brae\"]],\"Timrod\":[[\"14827\",\"East\",\"Timrod\"],[\"14828\",\"West\",\"Timrod\"]],\"Princeton\":[[\"11217\",\"East\",\"Princeton\"],[\"11126\",\"West\",\"Princeton\"]],\"22nd St\":[[\"12732\",\"East\",\"22nd St\"],[\"12626\",\"West\",\"22nd St\"]],\"C Centuri\":[[\"12733\",\"East\",\"C Centuri\"]],\"C Ileo\":[[\"11220\",\"East\",\"C Ileo\"]],\"Park & Ride (inside)\":[[\"11776\",\"East\",\"Park & Ride (inside)\"],[\"11776\",\"West\",\"Park & Ride (inside)\"]],\"Kolb\":[[\"11228\",\"East\",\"Kolb\"],[\"11133\",\"West\",\"Kolb\"]],\"7350 E Speedway\":[[\"11230\",\"East\",\"7350 E Speedway\"]],\"Grady\":[[\"12327\",\"East\",\"Grady\"],[\"11077\",\"West\",\"Grady\"]],\"Pantano\":[[\"11232\",\"East\",\"Pantano\"],[\"11076\",\"West\",\"Pantano\"]],\"Maguire\":[[\"11233\",\"East\",\"Maguire\"],[\"11075\",\"West\",\"Maguire\"]],\"Woodridge Apts\":[[\"11234\",\"East\",\"Woodridge Apts\"]],\"Keesal\":[[\"11235\",\"East\",\"Keesal\"]],\"Goebel\":[[\"11236\",\"East\",\"Goebel\"]],\"Cam Seco\":[[\"11237\",\"East\",\"Cam Seco\"],[\"11070\",\"West\",\"Cam Seco\"]],\"Av Ricardo Small\":[[\"11239\",\"East\",\"Av Ricardo Small\"],[\"11068\",\"West\",\"Av Ricardo Small\"]],\"Igo Way\":[[\"11240\",\"East\",\"Igo Way\"]],\"Cummings\":[[\"11241\",\"East\",\"Cummings\"],[\"11066\",\"West\",\"Cummings\"]],\"Sierra\":[[\"14866\",\"East\",\"Sierra\"]],\"Rosewood\":[[\"14553\",\"East\",\"Rosewood\"],[\"14138\",\"West\",\"Rosewood\"]],\"Harrison and 5th St\":[[\"12332\",\"East\",\"Harrison and 5th St\"],[\"14552\",\"West\",\"Harrison and 5th St\"]],\"Harrison Park Apts\":[[\"14554\",\"East\",\"Harrison Park Apts\"],[\"14551\",\"West\",\"Harrison Park Apts\"]],\"Broadway and Harrison\":[[\"16135\",\"East\",\"Broadway and Harrison\"]],\"Vozack\":[[\"16267\",\"East\",\"Vozack\"],[\"16266\",\"West\",\"Vozack\"]],\"Bonanza\":[[\"16268\",\"East\",\"Bonanza\"]],\"Sonoran Heights\":[[\"16269\",\"East\",\"Sonoran Heights\"]],\"Houghton\":[[\"15993\",\"East\",\"Houghton\"],[\"16270\",\"West\",\"Houghton\"]],\"Houghton Park&Ride\":[[\"15027\",\"East\",\"Houghton Park&Ride\"],[\"15027\",\"West\",\"Houghton Park&Ride\"]],\"Leland\":[[\"16264\",\"West\",\"Leland\"]],\"Shadow Brook\":[[\"16265\",\"West\",\"Shadow Brook\"]],\"Harrison and Broadway\":[[\"14550\",\"West\",\"Harrison and Broadway\"]],\"Speedway and Harrison\":[[\"16128\",\"West\",\"Speedway and Harrison\"]],\"Palms Park Dr.\":[[\"11067\",\"West\",\"Palms Park Dr.\"]],\"Electra\":[[\"14997\",\"West\",\"Electra\"]],\"Sarnoff\":[[\"11074\",\"West\",\"Sarnoff\"]],\"Prudence\":[[\"14386\",\"West\",\"Prudence\"]],\"7351 E Speedway\":[[\"11078\",\"West\",\"7351 E Speedway\"]],\"Golf Links\":[[\"48\",\"West\",\"Golf Links\"]],\"C Osita\":[[\"11121\",\"West\",\"C Osita\"]],\"29th St\":[[\"12624\",\"West\",\"29th St\"]],\"Sylvane\":[[\"14835\",\"West\",\"Sylvane\"]],\"Caribe\":[[\"11135\",\"West\",\"Caribe\"]],\"El Dorado\":[[\"14760\",\"West\",\"El Dorado\"]],\"Alamo\":[[\"11139\",\"West\",\"Alamo\"]],\"Catalina\":[[\"11147\",\"West\",\"Catalina\"]],\"Palo Verde\":[[\"14482\",\"West\",\"Palo Verde\"]],\"Howard\":[[\"11152\",\"West\",\"Howard\"]],\"Stone and Speedway\":[[\"11167\",\"West\",\"Stone and Speedway\"]],\"University\":[[\"11168\",\"West\",\"University\"]]};\nstopTables[5] = \n{\"Pima College West Campus\":[[\"16152\",\"East\",\"Pima College West Campus\"],[\"16152\",\"West\",\"Pima College West Campus\"]],\"Anklam\":[[\"16170\",\"East\",\"Anklam\"],[\"14758\",\"West\",\"Anklam\"]],\"Greasewood and Speedway\":[[\"16224\",\"East\",\"Greasewood and Speedway\"],[\"12580\",\"West\",\"Greasewood and Speedway\"]],\"Falcon Ridge Dr.\":[[\"14856\",\"East\",\"Falcon Ridge Dr.\"]],\"Silverbell\":[[\"12589\",\"East\",\"Silverbell\"],[\"12578\",\"West\",\"Silverbell\"]],\"Seminole\":[[\"12590\",\"East\",\"Seminole\"],[\"11714\",\"West\",\"Seminole\"]],\"Cherokee\":[[\"12591\",\"East\",\"Cherokee\"]],\"Cuesta\":[[\"12574\",\"East\",\"Cuesta\"]],\"Grande\":[[\"188\",\"East\",\"Grande\"],[\"226\",\"West\",\"Grande\"]],\"Columbia\":[[\"12440\",\"East\",\"Columbia\"],[\"12573\",\"West\",\"Columbia\"]],\"Alder\":[[\"12594\",\"East\",\"Alder\"]],\"10th Av\":[[\"12595\",\"East\",\"10th Av\"],[\"12571\",\"West\",\"10th Av\"]],\"Stone\":[[\"12596\",\"East\",\"Stone\"],[\"12570\",\"West\",\"Stone\"]],\"6th Av\":[[\"11177\",\"East\",\"6th Av\"],[\"11166\",\"West\",\"6th Av\"]],\"4th Av\":[[\"11178\",\"East\",\"4th Av\"],[\"11165\",\"West\",\"4th Av\"]],\"2nd Av\":[[\"11179\",\"East\",\"2nd Av\"],[\"11164\",\"West\",\"2nd Av\"]],\"Euclid\":[[\"11180\",\"East\",\"Euclid\"],[\"11163\",\"West\",\"Euclid\"]],\"Olive Underpass\":[[\"11181\",\"East\",\"Olive Underpass\"],[\"11161\",\"West\",\"Olive Underpass\"]],\"Highland Underpass\":[[\"11182\",\"East\",\"Highland Underpass\"],[\"11344\",\"West\",\"Highland Underpass\"]],\"Warren Underpass\":[[\"11183\",\"East\",\"Warren Underpass\"],[\"11157\",\"West\",\"Warren Underpass\"]],\"Campbell\":[[\"45\",\"East\",\"Campbell\"],[\"41\",\"West\",\"Campbell\"]],\"Tucson Bl and Speedway\":[[\"13252\",\"East\",\"Tucson Bl and Speedway\"],[\"16223\",\"West\",\"Tucson Bl and Speedway\"]],\"Drachman\":[[\"13253\",\"East\",\"Drachman\"],[\"12991\",\"West\",\"Drachman\"]],\"Tucson\":[[\"13255\",\"East\",\"Tucson\"]],\"Forgeus and Elm\":[[\"13256\",\"East\",\"Forgeus and Elm\"]],\"Treat\":[[\"13257\",\"East\",\"Treat\"],[\"12988\",\"West\",\"Treat\"]],\"Pima and Country Club\":[[\"13258\",\"East\",\"Pima and Country Club\"]],\"Howard\":[[\"13259\",\"East\",\"Howard\"],[\"12986\",\"West\",\"Howard\"]],\"Palo Verde\":[[\"14885\",\"East\",\"Palo Verde\"],[\"12985\",\"West\",\"Palo Verde\"]],\"Dodge\":[[\"13261\",\"East\",\"Dodge\"],[\"12984\",\"West\",\"Dodge\"]],\"Alvernon\":[[\"54\",\"East\",\"Alvernon\"],[\"53\",\"West\",\"Alvernon\"]],\"Desmond\":[[\"12956\",\"East\",\"Desmond\"],[\"12983\",\"West\",\"Desmond\"]],\"Columbus\":[[\"12957\",\"East\",\"Columbus\"],[\"12982\",\"West\",\"Columbus\"]],\"Belvedere\":[[\"12958\",\"East\",\"Belvedere\"],[\"12981\",\"West\",\"Belvedere\"]],\"Swan\":[[\"12959\",\"East\",\"Swan\"],[\"12980\",\"West\",\"Swan\"]],\"Arcadia\":[[\"12960\",\"East\",\"Arcadia\"],[\"12979\",\"West\",\"Arcadia\"]],\"Rosemont\":[[\"12962\",\"East\",\"Rosemont\"],[\"12977\",\"West\",\"Rosemont\"]],\"Beverly\":[[\"12976\",\"East\",\"Beverly\"],[\"12963\",\"West\",\"Beverly\"]],\"Woodland\":[[\"12964\",\"East\",\"Woodland\"]],\"Craycroft\":[[\"12965\",\"East\",\"Craycroft\"],[\"12975\",\"West\",\"Craycroft\"]],\"Van Buren\":[[\"12966\",\"East\",\"Van Buren\"],[\"12974\",\"West\",\"Van Buren\"]],\"Sahuara\":[[\"12967\",\"East\",\"Sahuara\"],[\"12973\",\"West\",\"Sahuara\"]],\"Ridgeway\":[[\"12968\",\"East\",\"Ridgeway\"]],\"Rook\":[[\"12969\",\"East\",\"Rook\"]],\"6390 E Tanque Verde\":[[\"14941\",\"East\",\"6390 E Tanque Verde\"]],\"6534 E Tanque Verde\":[[\"13517\",\"East\",\"6534 E Tanque Verde\"]],\"Kolb\":[[\"13519\",\"East\",\"Kolb\"]],\"Cmo Principal\":[[\"13520\",\"East\",\"Cmo Principal\"]],\"Indian Ridge\":[[\"13522\",\"East\",\"Indian Ridge\"]],\"Tanque Verde\":[[\"85\",\"East\",\"Tanque Verde\"],[\"85\",\"West\",\"Tanque Verde\"]],\"Sabino Canyon\":[[\"82\",\"West\",\"Sabino Canyon\"]],\"Indian Ruins\":[[\"13395\",\"West\",\"Indian Ruins\"]],\"Grant\":[[\"13396\",\"West\",\"Grant\"]],\"6445 E Tanque Verde Rd\":[[\"15047\",\"West\",\"6445 E Tanque Verde Rd\"]],\"Wilmot\":[[\"14787\",\"West\",\"Wilmot\"]],\"Alamo\":[[\"14875\",\"West\",\"Alamo\"]],\"Santa Rosa\":[[\"12978\",\"West\",\"Santa Rosa\"]],\"Elm and Country Club\":[[\"12987\",\"West\",\"Elm and Country Club\"]],\"Tucson Bl and Elm\":[[\"12989\",\"West\",\"Tucson Bl and Elm\"]],\"Plumer\":[[\"11156\",\"West\",\"Plumer\"]],\"Main\":[[\"12572\",\"West\",\"Main\"]],\"Riverview\":[[\"11712\",\"West\",\"Riverview\"]],\"El Rio\":[[\"11715\",\"West\",\"El Rio\"]],\"La Lomita Apts\":[[\"12579\",\"West\",\"La Lomita Apts\"]]};\nstopTables[6] = \n{\"6th Av and Pennington\":[[\"42\",\"North\",\"6th Av and Pennington\"],[\"42\",\"South\",\"6th Av and Pennington\"]],\"Grossetta\":[[\"10858\",\"North\",\"Grossetta\"]],\"Church and Pennington\":[[\"10859\",\"North\",\"Church and Pennington\"]],\"6th Av\":[[\"16262\",\"North\",\"6th Av\"]],\"4th Av\":[[\"10861\",\"North\",\"4th Av\"]],\"Broadway\":[[\"13604\",\"North\",\"Broadway\"]],\"9th St\":[[\"13079\",\"North\",\"9th St\"],[\"14364\",\"South\",\"9th St\"]],\"6th St\":[[\"60\",\"North\",\"6th St\"],[\"65\",\"South\",\"6th St\"]],\"University\":[[\"13080\",\"North\",\"University\"],[\"12923\",\"South\",\"University\"]],\"1st St\":[[\"13081\",\"North\",\"1st St\"],[\"12922\",\"South\",\"1st St\"]],\"Speedway\":[[\"13082\",\"North\",\"Speedway\"],[\"12921\",\"South\",\"Speedway\"]],\"Drachman\":[[\"14368\",\"North\",\"Drachman\"],[\"12920\",\"South\",\"Drachman\"]],\"Lester\":[[\"13084\",\"North\",\"Lester\"]],\"Seneca\":[[\"13085\",\"North\",\"Seneca\"]],\"Grant\":[[\"12084\",\"North\",\"Grant\"],[\"12098\",\"South\",\"Grant\"]],\"Copper\":[[\"13087\",\"North\",\"Copper\"]],\"Glenn\":[[\"13088\",\"North\",\"Glenn\"],[\"12915\",\"South\",\"Glenn\"]],\"Ft Lowell\":[[\"343\",\"North\",\"Ft Lowell\"],[\"333\",\"South\",\"Ft Lowell\"]],\"Halcyon\":[[\"13090\",\"North\",\"Halcyon\"],[\"12913\",\"South\",\"Halcyon\"]],\"Graybill\":[[\"13091\",\"North\",\"Graybill\"]],\"Prince\":[[\"12895\",\"North\",\"Prince\"],[\"12911\",\"South\",\"Prince\"]],\"Pastime Rd\":[[\"16219\",\"North\",\"Pastime Rd\"],[\"12910\",\"South\",\"Pastime Rd\"]],\"Roger\":[[\"12897\",\"North\",\"Roger\"],[\"12786\",\"South\",\"Roger\"]],\"Limberlost\":[[\"13095\",\"North\",\"Limberlost\"],[\"12907\",\"South\",\"Limberlost\"]],\"Carls Jr\":[[\"13096\",\"North\",\"Carls Jr\"]],\"Stanley Pl\":[[\"13098\",\"North\",\"Stanley Pl\"]],\"Tohono\":[[\"14236\",\"North\",\"Tohono\"],[\"14236\",\"South\",\"Tohono\"]],\"Radin Av\":[[\"13099\",\"South\",\"Radin Av\"]],\"Wetmore\":[[\"12783\",\"South\",\"Wetmore\"]],\"Yavapai\":[[\"12912\",\"South\",\"Yavapai\"]],\"Blacklidge\":[[\"12914\",\"South\",\"Blacklidge\"]],\"Jacinto\":[[\"12916\",\"South\",\"Jacinto\"]],\"Linden\":[[\"12918\",\"South\",\"Linden\"]],\"Elm\":[[\"12919\",\"South\",\"Elm\"]],\"Euclid\":[[\"10925\",\"South\",\"Euclid\"]]};\nstopTables[7] = \n{\"Downtown\":[[\"28\",\"East\",\"Downtown\"],[\"28\",\"West\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"East\",\"Grossetta\"]],\"Pennington\":[[\"10859\",\"East\",\"Pennington\"]],\"Ochoa\":[[\"14796\",\"East\",\"Ochoa\"],[\"14797\",\"West\",\"Ochoa\"]],\"Simpson\":[[\"13278\",\"East\",\"Simpson\"]],\"17th St\":[[\"12266\",\"East\",\"17th St\"],[\"12133\",\"West\",\"17th St\"]],\"19th St\":[[\"12267\",\"East\",\"19th St\"],[\"12132\",\"West\",\"19th St\"]],\"21st St\":[[\"12268\",\"East\",\"21st St\"]],\"10th Av\":[[\"13282\",\"East\",\"10th Av\"]],\"8th Av\":[[\"13283\",\"East\",\"8th Av\"]],\"6th Av\":[[\"13284\",\"East\",\"6th Av\"],[\"13369\",\"West\",\"6th Av\"]],\"4th Av\":[[\"13285\",\"East\",\"4th Av\"]],\"Euclid\":[[\"13286\",\"East\",\"Euclid\"],[\"13367\",\"West\",\"Euclid\"]],\"Park\":[[\"10864\",\"East\",\"Park\"],[\"10923\",\"West\",\"Park\"]],\"Tucson\":[[\"11932\",\"East\",\"Tucson\"],[\"13364\",\"West\",\"Tucson\"]],\"Treat\":[[\"13291\",\"East\",\"Treat\"],[\"13363\",\"West\",\"Treat\"]],\"Country Club\":[[\"11751\",\"East\",\"Country Club\"],[\"13362\",\"West\",\"Country Club\"]],\"Randolph Pkwy\":[[\"11752\",\"East\",\"Randolph Pkwy\"]],\"Palo Verde\":[[\"11754\",\"East\",\"Palo Verde\"]],\"Dodge\":[[\"13296\",\"East\",\"Dodge\"],[\"13359\",\"West\",\"Dodge\"]],\"Alvernon\":[[\"71\",\"East\",\"Alvernon\"],[\"74\",\"West\",\"Alvernon\"]],\"Irving\":[[\"13297\",\"East\",\"Irving\"],[\"13358\",\"West\",\"Irving\"]],\"Columbus\":[[\"13298\",\"East\",\"Columbus\"],[\"13357\",\"West\",\"Columbus\"]],\"Belvedere\":[[\"13299\",\"East\",\"Belvedere\"],[\"13356\",\"West\",\"Belvedere\"]],\"Swan\":[[\"13300\",\"East\",\"Swan\"],[\"13355\",\"West\",\"Swan\"]],\"Mountain View\":[[\"13301\",\"East\",\"Mountain View\"],[\"13354\",\"West\",\"Mountain View\"]],\"Rosemont\":[[\"13302\",\"East\",\"Rosemont\"]],\"Beverly\":[[\"13304\",\"East\",\"Beverly\"]],\"Craycroft\":[[\"311\",\"East\",\"Craycroft\"],[\"304\",\"West\",\"Craycroft\"]],\"Van Buren\":[[\"13306\",\"East\",\"Van Buren\"],[\"13349\",\"West\",\"Van Buren\"]],\"Alamo\":[[\"13308\",\"East\",\"Alamo\"],[\"13347\",\"West\",\"Alamo\"]],\"Wilmot\":[[\"75\",\"East\",\"Wilmot\"],[\"70\",\"West\",\"Wilmot\"]],\"Av Polar\":[[\"13309\",\"East\",\"Av Polar\"]],\"Av Sirio\":[[\"13310\",\"East\",\"Av Sirio\"]],\"Lehigh Dr\":[[\"12337\",\"East\",\"Lehigh Dr\"]],\"Kolb\":[[\"12338\",\"East\",\"Kolb\"],[\"11868\",\"West\",\"Kolb\"]],\"Turquoise\":[[\"13313\",\"East\",\"Turquoise\"],[\"13341\",\"West\",\"Turquoise\"]],\"Prudence\":[[\"12339\",\"East\",\"Prudence\"],[\"11867\",\"West\",\"Prudence\"]],\"Pantano Rd\":[[\"12340\",\"East\",\"Pantano Rd\"],[\"13338\",\"West\",\"Pantano Rd\"]],\"Pantano Pkwy\":[[\"13316\",\"East\",\"Pantano Pkwy\"],[\"11866\",\"West\",\"Pantano Pkwy\"]],\"Sherwood Village Dr\":[[\"13317\",\"East\",\"Sherwood Village Dr\"],[\"13337\",\"West\",\"Sherwood Village Dr\"]],\"Sarnoff\":[[\"12341\",\"East\",\"Sarnoff\"],[\"12366\",\"West\",\"Sarnoff\"]],\"Lusk\":[[\"13319\",\"East\",\"Lusk\"],[\"13335\",\"West\",\"Lusk\"]],\"Cmo Seco\":[[\"14537\",\"East\",\"Cmo Seco\"],[\"14536\",\"West\",\"Cmo Seco\"]],\"Oak Park\":[[\"14538\",\"East\",\"Oak Park\"],[\"14535\",\"West\",\"Oak Park\"]],\"Brown\":[[\"14539\",\"East\",\"Brown\"],[\"14534\",\"West\",\"Brown\"]],\"Harrison\":[[\"15981\",\"East\",\"Harrison\"],[\"14533\",\"West\",\"Harrison\"]],\"22nd St\":[[\"15924\",\"East\",\"22nd St\"]],\"Broadway and Houghton\":[[\"16270\",\"East\",\"Broadway and Houghton\"],[\"15993\",\"East\",\"Broadway and Houghton\"]],\"Houghton Park&Ride\":[[\"15027\",\"East\",\"Houghton Park&Ride\"],[\"15027\",\"West\",\"Houghton Park&Ride\"]],\"22nd St and Houghton\":[[\"15990\",\"West\",\"22nd St and Houghton\"]],\"Carnegie Dr\":[[\"13344\",\"West\",\"Carnegie Dr\"]],\"Fordham\":[[\"13345\",\"West\",\"Fordham\"]],\"Amherst\":[[\"13346\",\"West\",\"Amherst\"]],\"Colonia\":[[\"13348\",\"West\",\"Colonia\"]],\"Magnolia\":[[\"13352\",\"West\",\"Magnolia\"]],\"Randolph Way\":[[\"11833\",\"West\",\"Randolph Way\"]],\"Jones\":[[\"11834\",\"West\",\"Jones\"]],\"Kino\":[[\"16115\",\"West\",\"Kino\"]],\"Santa Rita\":[[\"10922\",\"West\",\"Santa Rita\"]],\"3rd Av\":[[\"16161\",\"West\",\"3rd Av\"]],\"Meyer Av\":[[\"13370\",\"West\",\"Meyer Av\"]],\"20th St\":[[\"14876\",\"West\",\"20th St\"]],\"Main\":[[\"13434\",\"West\",\"Main\"]]};\nstopTables[8] = \n{\"Downtown\":[[\"14203\",\"East\",\"Downtown\"],[\"14203\",\"West\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"East\",\"Grossetta\"]],\"Pennington\":[[\"10859\",\"East\",\"Pennington\"]],\"6th Av\":[[\"16262\",\"East\",\"6th Av\"]],\"4th Av\":[[\"10861\",\"East\",\"4th Av\"]],\"Euclid\":[[\"13481\",\"East\",\"Euclid\"],[\"10925\",\"West\",\"Euclid\"]],\"Fremont\":[[\"13482\",\"East\",\"Fremont\"]],\"Highland\":[[\"13483\",\"East\",\"Highland\"],[\"13427\",\"West\",\"Highland\"]],\"Cherry\":[[\"13484\",\"East\",\"Cherry\"],[\"13426\",\"West\",\"Cherry\"]],\"Campbell\":[[\"13485\",\"East\",\"Campbell\"],[\"13425\",\"West\",\"Campbell\"]],\"Plumer\":[[\"13486\",\"East\",\"Plumer\"],[\"13424\",\"West\",\"Plumer\"]],\"Tucson\":[[\"13487\",\"East\",\"Tucson\"],[\"13423\",\"West\",\"Tucson\"]],\"Treat\":[[\"13488\",\"East\",\"Treat\"],[\"13422\",\"West\",\"Treat\"]],\"Country Club\":[[\"13490\",\"East\",\"Country Club\"],[\"13421\",\"West\",\"Country Club\"]],\"Randolph Way\":[[\"78\",\"East\",\"Randolph Way\"],[\"89\",\"West\",\"Randolph Way\"]],\"Alvernon\":[[\"11008\",\"East\",\"Alvernon\"],[\"14336\",\"West\",\"Alvernon\"]],\"Irving\":[[\"13493\",\"East\",\"Irving\"],[\"13417\",\"West\",\"Irving\"]],\"Columbus\":[[\"13494\",\"East\",\"Columbus\"],[\"13416\",\"West\",\"Columbus\"]],\"Belvedere\":[[\"13495\",\"East\",\"Belvedere\"],[\"13415\",\"West\",\"Belvedere\"]],\"Swan\":[[\"307\",\"East\",\"Swan\"],[\"308\",\"West\",\"Swan\"]],\"Niven\":[[\"13498\",\"East\",\"Niven\"]],\"Rosemont\":[[\"13499\",\"East\",\"Rosemont\"],[\"13411\",\"West\",\"Rosemont\"]],\"Williams\":[[\"13500\",\"East\",\"Williams\"]],\"Craycroft\":[[\"13501\",\"East\",\"Craycroft\"],[\"13409\",\"West\",\"Craycroft\"]],\"Leonora\":[[\"13502\",\"East\",\"Leonora\"],[\"13408\",\"West\",\"Leonora\"]],\"Chantilly\":[[\"13503\",\"East\",\"Chantilly\"],[\"12857\",\"West\",\"Chantilly\"]],\"Park Place\":[[\"13505\",\"East\",\"Park Place\"]],\"Broadway\":[[\"81\",\"East\",\"Broadway\"]],\"Carondelet\":[[\"13508\",\"East\",\"Carondelet\"],[\"13404\",\"West\",\"Carondelet\"]],\"5th St\":[[\"13510\",\"East\",\"5th St\"],[\"13403\",\"West\",\"5th St\"]],\"Rosewood\":[[\"13511\",\"East\",\"Rosewood\"],[\"13402\",\"West\",\"Rosewood\"]],\"Speedway\":[[\"13512\",\"East\",\"Speedway\"],[\"13401\",\"West\",\"Speedway\"]],\"Fairmount\":[[\"13513\",\"East\",\"Fairmount\"],[\"13217\",\"West\",\"Fairmount\"]],\"6390 E Tanque Verde\":[[\"14941\",\"East\",\"6390 E Tanque Verde\"]],\"6534 E Tanque Verde\":[[\"13517\",\"East\",\"6534 E Tanque Verde\"]],\"Tanque Verde and Kolb\":[[\"13519\",\"East\",\"Tanque Verde and Kolb\"]],\"Cmo Principal\":[[\"13520\",\"East\",\"Cmo Principal\"]],\"Indian Ridge\":[[\"13522\",\"East\",\"Indian Ridge\"]],\"Tanque Verde\":[[\"85\",\"East\",\"Tanque Verde\"],[\"85\",\"West\",\"Tanque Verde\"]],\"O'Reilly Chevrolet\":[[\"13506\",\"East\",\"O'Reilly Chevrolet\"]],\"Wilmot\":[[\"13525\",\"East\",\"Wilmot\"],[\"86\",\"West\",\"Wilmot\"]],\"Mann\":[[\"13526\",\"East\",\"Mann\"]],\"Jessica\":[[\"13527\",\"East\",\"Jessica\"],[\"13392\",\"West\",\"Jessica\"]],\"Langley\":[[\"13528\",\"East\",\"Langley\"],[\"13391\",\"West\",\"Langley\"]],\"Broadway and Kolb\":[[\"13530\",\"East\",\"Broadway and Kolb\"],[\"13390\",\"West\",\"Broadway and Kolb\"]],\"Montego\":[[\"13531\",\"East\",\"Montego\"],[\"13389\",\"West\",\"Montego\"]],\"Prudence\":[[\"13532\",\"East\",\"Prudence\"],[\"13388\",\"West\",\"Prudence\"]],\"River Oaks Apts\":[[\"13533\",\"East\",\"River Oaks Apts\"],[\"13387\",\"West\",\"River Oaks Apts\"]],\"Pantano\":[[\"14452\",\"East\",\"Pantano\"],[\"13385\",\"West\",\"Pantano\"],[\"13386\",\"West\",\"Pantano\"]],\"Sarnoff\":[[\"14544\",\"East\",\"Sarnoff\"],[\"12343\",\"West\",\"Sarnoff\"]],\"Old Spanish Trail\":[[\"14545\",\"East\",\"Old Spanish Trail\"],[\"14559\",\"West\",\"Old Spanish Trail\"]],\"Cmo Seco\":[[\"14546\",\"East\",\"Cmo Seco\"],[\"14558\",\"West\",\"Cmo Seco\"]],\"Rayburn\":[[\"14937\",\"East\",\"Rayburn\"],[\"14936\",\"West\",\"Rayburn\"]],\"Elster\":[[\"14938\",\"East\",\"Elster\"]],\"Harrison\":[[\"16135\",\"East\",\"Harrison\"],[\"14555\",\"West\",\"Harrison\"]],\"Vozack\":[[\"16267\",\"East\",\"Vozack\"],[\"16266\",\"West\",\"Vozack\"]],\"Bonanza\":[[\"16268\",\"East\",\"Bonanza\"]],\"Sonoran Heights\":[[\"16269\",\"East\",\"Sonoran Heights\"]],\"Houghton\":[[\"15993\",\"East\",\"Houghton\"],[\"16270\",\"West\",\"Houghton\"]],\"Houghton Park&Ride\":[[\"15027\",\"East\",\"Houghton Park&Ride\"],[\"15027\",\"West\",\"Houghton Park&Ride\"]],\"Leland\":[[\"16264\",\"West\",\"Leland\"]],\"Shadow Brook\":[[\"16265\",\"West\",\"Shadow Brook\"]],\"Dixie\":[[\"14939\",\"West\",\"Dixie\"]],\"Gollob\":[[\"14935\",\"West\",\"Gollob\"]],\"Fellowship Square\":[[\"13384\",\"West\",\"Fellowship Square\"]],\"Natachee\":[[\"13393\",\"West\",\"Natachee\"]],\"Sabino Canyon\":[[\"82\",\"West\",\"Sabino Canyon\"]],\"Indian Ruins\":[[\"13395\",\"West\",\"Indian Ruins\"]],\"Grant\":[[\"13396\",\"West\",\"Grant\"]],\"6445 E Tanque Verde Rd\":[[\"15047\",\"West\",\"6445 E Tanque Verde Rd\"]],\"Lee\":[[\"13399\",\"West\",\"Lee\"]],\"McDonalds\":[[\"13405\",\"West\",\"McDonalds\"]],\"Indian House\":[[\"12347\",\"West\",\"Indian House\"]],\"Beverly\":[[\"13410\",\"West\",\"Beverly\"]],\"Arcadia\":[[\"16234\",\"West\",\"Arcadia\"]],\"Dodge\":[[\"13419\",\"West\",\"Dodge\"]],\"Santa Rita\":[[\"13428\",\"West\",\"Santa Rita\"]],\"Park Av\":[[\"13429\",\"West\",\"Park Av\"]]};\nstopTables[9] = \n{\"University Villa\":[[\"14505\",\"East\",\"University Villa\"],[\"14505\",\"West\",\"University Villa\"]],\"Palo Santo\":[[\"14591\",\"East\",\"Palo Santo\"],[\"14590\",\"West\",\"Palo Santo\"]],\"Silverbell\":[[\"186\",\"East\",\"Silverbell\"]],\"Jordan\":[[\"12400\",\"East\",\"Jordan\"],[\"12399\",\"West\",\"Jordan\"]],\"Coyote Dr\":[[\"12451\",\"East\",\"Coyote Dr\"],[\"12398\",\"West\",\"Coyote Dr\"]],\"Dragoon\":[[\"12402\",\"East\",\"Dragoon\"]],\"Forbes\":[[\"12403\",\"East\",\"Forbes\"],[\"12395\",\"West\",\"Forbes\"]],\"Fairview\":[[\"12404\",\"East\",\"Fairview\"],[\"12394\",\"West\",\"Fairview\"]],\"15th Av\":[[\"12405\",\"East\",\"15th Av\"],[\"12393\",\"West\",\"15th Av\"]],\"Oracle\":[[\"187\",\"East\",\"Oracle\"],[\"184\",\"West\",\"Oracle\"]],\"Stone\":[[\"12407\",\"East\",\"Stone\"],[\"12391\",\"West\",\"Stone\"]],\"6th Av\":[[\"12408\",\"East\",\"6th Av\"]],\"3rd Av\":[[\"12409\",\"East\",\"3rd Av\"]],\"1st Av\":[[\"14914\",\"East\",\"1st Av\"],[\"11973\",\"West\",\"1st Av\"]],\"Park\":[[\"12411\",\"East\",\"Park\"],[\"11972\",\"West\",\"Park\"]],\"Mountain\":[[\"12412\",\"East\",\"Mountain\"],[\"11971\",\"West\",\"Mountain\"]],\"Cherry\":[[\"12413\",\"East\",\"Cherry\"],[\"11970\",\"West\",\"Cherry\"]],\"Martin\":[[\"12414\",\"East\",\"Martin\"]],\"Campbell@Norris\":[[\"13616\",\"East\",\"Campbell@Norris\"]],\"Plumer\":[[\"13617\",\"East\",\"Plumer\"],[\"13584\",\"West\",\"Plumer\"]],\"Tucson\":[[\"13618\",\"East\",\"Tucson\"],[\"13583\",\"West\",\"Tucson\"]],\"Loretta\":[[\"13619\",\"East\",\"Loretta\"]],\"Country Club\":[[\"13620\",\"East\",\"Country Club\"],[\"13581\",\"West\",\"Country Club\"]],\"Rita\":[[\"13621\",\"East\",\"Rita\"]],\"Palo Verde\":[[\"13622\",\"East\",\"Palo Verde\"],[\"13577\",\"West\",\"Palo Verde\"]],\"Dodge\":[[\"13623\",\"East\",\"Dodge\"]],\"Alvernon\":[[\"107\",\"East\",\"Alvernon\"]],\"Walnut\":[[\"13624\",\"East\",\"Walnut\"],[\"13574\",\"West\",\"Walnut\"]],\"Columbus\":[[\"13625\",\"East\",\"Columbus\"],[\"13573\",\"West\",\"Columbus\"]],\"Belvedere\":[[\"13626\",\"East\",\"Belvedere\"],[\"13572\",\"West\",\"Belvedere\"]],\"Swan\":[[\"13627\",\"East\",\"Swan\"],[\"13571\",\"West\",\"Swan\"]],\"Arcadia\":[[\"13628\",\"East\",\"Arcadia\"],[\"13570\",\"West\",\"Arcadia\"]],\"Rosemont\":[[\"13630\",\"East\",\"Rosemont\"],[\"13568\",\"West\",\"Rosemont\"]],\"Beverly\":[[\"13631\",\"East\",\"Beverly\"],[\"13567\",\"West\",\"Beverly\"]],\"Craycroft\":[[\"108\",\"East\",\"Craycroft\"],[\"96\",\"West\",\"Craycroft\"]],\"Rainbow Vista\":[[\"13633\",\"East\",\"Rainbow Vista\"],[\"13565\",\"West\",\"Rainbow Vista\"]],\"Sahuara\":[[\"13634\",\"East\",\"Sahuara\"],[\"13564\",\"West\",\"Sahuara\"]],\"Ridgeway\":[[\"13635\",\"East\",\"Ridgeway\"]],\"Devon Gables\":[[\"13636\",\"East\",\"Devon Gables\"]],\"Wilmot\":[[\"13637\",\"East\",\"Wilmot\"],[\"13561\",\"West\",\"Wilmot\"]],\"Kolb\":[[\"13519\",\"East\",\"Kolb\"]],\"Cmo Principal\":[[\"13520\",\"East\",\"Cmo Principal\"]],\"Indian Ridge\":[[\"13522\",\"East\",\"Indian Ridge\"]],\"Sabino Canyon and Tanque Verde\":[[\"85\",\"East\",\"Sabino Canyon and Tanque Verde\"],[\"85\",\"West\",\"Sabino Canyon and Tanque Verde\"]],\"Sabino Canyon\":[[\"82\",\"West\",\"Sabino Canyon\"]],\"Indian Ruins\":[[\"13395\",\"West\",\"Indian Ruins\"]],\"Grant and Tanque Verde\":[[\"13559\",\"West\",\"Grant and Tanque Verde\"]],\"6400 E Grant\":[[\"13560\",\"West\",\"6400 E Grant\"]],\"Sunny Dr\":[[\"15958\",\"West\",\"Sunny Dr\"]],\"3767 E Grant SAAVI\":[[\"13575\",\"West\",\"3767 E Grant SAAVI\"]],\"Chrysler\":[[\"14889\",\"West\",\"Chrysler\"]],\"Edith\":[[\"13578\",\"West\",\"Edith\"]],\"Doolen School\":[[\"13580\",\"West\",\"Doolen School\"]],\"Treat\":[[\"13582\",\"West\",\"Treat\"]],\"Campbell@Martin\":[[\"14320\",\"West\",\"Campbell@Martin\"]],\"Los Altos\":[[\"11974\",\"West\",\"Los Altos\"]],\"Fontana\":[[\"11975\",\"West\",\"Fontana\"]],\"IHOP (1500 W Grant)\":[[\"14794\",\"West\",\"IHOP (1500 W Grant)\"]],\"Huachuca\":[[\"12397\",\"West\",\"Huachuca\"]]};\nstopTables[10] = \n{\"Downtown\":[[\"14205\",\"North\",\"Downtown\"],[\"14205\",\"South\",\"Downtown\"]],\"7th Av\":[[\"14761\",\"North\",\"7th Av\"],[\"11525\",\"South\",\"7th Av\"]],\"Speedway and Stone\":[[\"12570\",\"North\",\"Speedway and Stone\"]],\"10th Av\":[[\"12571\",\"North\",\"10th Av\"],[\"12595\",\"South\",\"10th Av\"]],\"Main and Speedway\":[[\"11407\",\"North\",\"Main and Speedway\"]],\"Mabel\":[[\"11408\",\"North\",\"Mabel\"],[\"11389\",\"South\",\"Mabel\"]],\"Lee\":[[\"11409\",\"North\",\"Lee\"],[\"11388\",\"South\",\"Lee\"]],\"Plata\":[[\"14843\",\"North\",\"Plata\"],[\"11387\",\"South\",\"Plata\"]],\"Rillito\":[[\"16156\",\"North\",\"Rillito\"]],\"Grant\":[[\"157\",\"North\",\"Grant\"],[\"116\",\"South\",\"Grant\"]],\"Jacinto\":[[\"11413\",\"North\",\"Jacinto\"],[\"11384\",\"South\",\"Jacinto\"]],\"Glenn\":[[\"11414\",\"North\",\"Glenn\"],[\"11383\",\"South\",\"Glenn\"]],\"Cemetery\":[[\"11415\",\"North\",\"Cemetery\"]],\"800 Block\":[[\"14899\",\"North\",\"800 Block\"]],\"Fairview\":[[\"11417\",\"North\",\"Fairview\"],[\"11381\",\"South\",\"Fairview\"]],\"El Burrito\":[[\"11418\",\"North\",\"El Burrito\"],[\"11380\",\"South\",\"El Burrito\"]],\"Flowing Wells\":[[\"11419\",\"North\",\"Flowing Wells\"],[\"11379\",\"South\",\"Flowing Wells\"]],\"Delano\":[[\"14560\",\"North\",\"Delano\"],[\"11378\",\"South\",\"Delano\"]],\"Mohave\":[[\"16146\",\"North\",\"Mohave\"],[\"14215\",\"South\",\"Mohave\"]],\"Prince\":[[\"11375\",\"North\",\"Prince\"],[\"11426\",\"South\",\"Prince\"]],\"Pastime\":[[\"11427\",\"North\",\"Pastime\"],[\"11373\",\"South\",\"Pastime\"]],\"Roger\":[[\"14563\",\"North\",\"Roger\"],[\"11372\",\"South\",\"Roger\"]],\"Talisman\":[[\"14565\",\"North\",\"Talisman\"],[\"14575\",\"South\",\"Talisman\"]],\"Schafer\":[[\"14874\",\"North\",\"Schafer\"]],\"Wabash\":[[\"14567\",\"North\",\"Wabash\"],[\"14573\",\"South\",\"Wabash\"]],\"Edgewater\":[[\"14568\",\"North\",\"Edgewater\"],[\"14572\",\"South\",\"Edgewater\"]],\"La Canada\":[[\"14483\",\"North\",\"La Canada\"]],\"Hansen\":[[\"14569\",\"North\",\"Hansen\"],[\"14571\",\"South\",\"Hansen\"]],\"15th Av\":[[\"14817\",\"North\",\"15th Av\"],[\"14816\",\"South\",\"15th Av\"]],\"Oracle\":[[\"12236\",\"North\",\"Oracle\"],[\"14570\",\"South\",\"Oracle\"]],\"River\":[[\"12902\",\"North\",\"River\"],[\"14494\",\"South\",\"River\"]],\"Tohono\":[[\"14237\",\"North\",\"Tohono\"],[\"14237\",\"South\",\"Tohono\"]],\"River and Stone\":[[\"11350\",\"South\",\"River and Stone\"]],\"River Rd\":[[\"14484\",\"South\",\"River Rd\"]],\"Wetmore\":[[\"14574\",\"South\",\"Wetmore\"]],\"Riviera Motel\":[[\"11382\",\"South\",\"Riviera Motel\"]],\"Alturas\":[[\"11385\",\"South\",\"Alturas\"]],\"Flores\":[[\"16200\",\"South\",\"Flores\"]],\"Alder\":[[\"12594\",\"South\",\"Alder\"]],\"Stone and Speedway\":[[\"11167\",\"South\",\"Stone and Speedway\"]],\"University\":[[\"11168\",\"South\",\"University\"]]};\nstopTables[11] = \n{\"Laos\":[[\"14224\",\"North\",\"Laos\"],[\"14224\",\"South\",\"Laos\"]],\"6th Av and Irvington\":[[\"10926\",\"North\",\"6th Av and Irvington\"]],\"Oklahoma\":[[\"10927\",\"North\",\"Oklahoma\"],[\"11065\",\"South\",\"Oklahoma\"]],\"Illinois\":[[\"10928\",\"North\",\"Illinois\"],[\"11064\",\"South\",\"Illinois\"]],\"6th Av and Michigan\":[[\"10929\",\"North\",\"6th Av and Michigan\"],[\"11063\",\"South\",\"6th Av and Michigan\"]],\"District\":[[\"10930\",\"North\",\"District\"],[\"11061\",\"South\",\"District\"]],\"President\":[[\"10931\",\"North\",\"President\"]],\"6th Av\":[[\"10932\",\"North\",\"6th Av\"]],\"2rd Av\":[[\"10933\",\"North\",\"2rd Av\"],[\"11059\",\"South\",\"2rd Av\"]],\"Thomas O Price Center\":[[\"10934\",\"North\",\"Thomas O Price Center\"]],\"Park Av\":[[\"128\",\"North\",\"Park Av\"],[\"117\",\"South\",\"Park Av\"]],\"Ajo and Benson Hwy\":[[\"10935\",\"North\",\"Ajo and Benson Hwy\"],[\"11057\",\"South\",\"Ajo and Benson Hwy\"]],\"Bernard\":[[\"10936\",\"North\",\"Bernard\"],[\"11056\",\"South\",\"Bernard\"]],\"Juvenile Center\":[[\"10937\",\"North\",\"Juvenile Center\"]],\"P.C. Sheriffs Dept\":[[\"10938\",\"North\",\"P.C. Sheriffs Dept\"]],\"Forgeus\":[[\"10939\",\"North\",\"Forgeus\"],[\"11053\",\"South\",\"Forgeus\"]],\"Country Club and Ajo\":[[\"10893\",\"North\",\"Country Club and Ajo\"],[\"10893\",\"South\",\"Country Club and Ajo\"]],\"South Campus\":[[\"18\",\"North\",\"South Campus\"],[\"18\",\"South\",\"South Campus\"]],\"Ajo and Country Club\":[[\"10942\",\"North\",\"Ajo and Country Club\"]],\"Randolph Av\":[[\"10943\",\"North\",\"Randolph Av\"],[\"11050\",\"South\",\"Randolph Av\"]],\"Tucson Intl Airport\":[[\"118\",\"North\",\"Tucson Intl Airport\"],[\"118\",\"South\",\"Tucson Intl Airport\"]],\"Corona\":[[\"10945\",\"North\",\"Corona\"],[\"11048\",\"South\",\"Corona\"]],\"Elvira\":[[\"10946\",\"North\",\"Elvira\"],[\"11047\",\"South\",\"Elvira\"]],\"Medina\":[[\"10947\",\"North\",\"Medina\"],[\"11046\",\"South\",\"Medina\"]],\"Tucson Blvd\":[[\"10948\",\"North\",\"Tucson Blvd\"]],\"Bay Colony\":[[\"10949\",\"North\",\"Bay Colony\"],[\"11044\",\"South\",\"Bay Colony\"]],\"Valencia and Country Club\":[[\"10950\",\"North\",\"Valencia and Country Club\"],[\"11043\",\"South\",\"Valencia and Country Club\"]],\"Lisa Frank Dr\":[[\"10951\",\"North\",\"Lisa Frank Dr\"]],\"Alvernon and Valencia\":[[\"16163\",\"North\",\"Alvernon and Valencia\"],[\"16163\",\"South\",\"Alvernon and Valencia\"]],\"Alvernon\":[[\"16292\",\"North\",\"Alvernon\"],[\"16292\",\"South\",\"Alvernon\"]],\"UniversalWy\":[[\"15980\",\"North\",\"UniversalWy\"],[\"15980\",\"South\",\"UniversalWy\"]],\"Britannia\":[[\"10952\",\"North\",\"Britannia\"],[\"11041\",\"South\",\"Britannia\"]],\"Palo Verde and Hemisphere\":[[\"11040\",\"North\",\"Palo Verde and Hemisphere\"],[\"14313\",\"South\",\"Palo Verde and Hemisphere\"]],\"Mossman\":[[\"10953\",\"North\",\"Mossman\"],[\"11039\",\"South\",\"Mossman\"]],\"Palo Verde and Benson Hwy\":[[\"10954\",\"North\",\"Palo Verde and Benson Hwy\"],[\"11037\",\"South\",\"Palo Verde and Benson Hwy\"]],\"Nebraska\":[[\"10955\",\"North\",\"Nebraska\"]],\"Hotel Dr and Irvington\":[[\"10956\",\"North\",\"Hotel Dr and Irvington\"],[\"11034\",\"South\",\"Hotel Dr and Irvington\"]],\"Gas Rd\":[[\"119\",\"North\",\"Gas Rd\"],[\"126\",\"South\",\"Gas Rd\"]],\"Gas Rd and Palo Verde\":[[\"16160\",\"North\",\"Gas Rd and Palo Verde\"],[\"11033\",\"South\",\"Gas Rd and Palo Verde\"]],\"Coach Dr\":[[\"10958\",\"North\",\"Coach Dr\"]],\"Columbia\":[[\"10959\",\"North\",\"Columbia\"],[\"11031\",\"South\",\"Columbia\"]],\"Palo Verde and Ajo\":[[\"10960\",\"North\",\"Palo Verde and Ajo\"],[\"11030\",\"South\",\"Palo Verde and Ajo\"]],\"Veterans\":[[\"10961\",\"North\",\"Veterans\"],[\"11029\",\"South\",\"Veterans\"]],\"44th St\":[[\"10962\",\"North\",\"44th St\"]],\"29th St\":[[\"10969\",\"North\",\"29th St\"]],\"27th St\":[[\"292\",\"North\",\"27th St\"],[\"303\",\"South\",\"27th St\"]],\"22nd St\":[[\"139\",\"North\",\"22nd St\"],[\"136\",\"South\",\"22nd St\"]],\"Sta Barbara\":[[\"10972\",\"North\",\"Sta Barbara\"]],\"Hayne\":[[\"10973\",\"North\",\"Hayne\"],[\"11013\",\"South\",\"Hayne\"]],\"Whittier\":[[\"10974\",\"North\",\"Whittier\"],[\"11012\",\"South\",\"Whittier\"]],\"Broadway\":[[\"120\",\"North\",\"Broadway\"],[\"125\",\"South\",\"Broadway\"]],\"Holmes\":[[\"10977\",\"North\",\"Holmes\"]],\"5th St\":[[\"10978\",\"North\",\"5th St\"],[\"16188\",\"South\",\"5th St\"]],\"3rd St\":[[\"10979\",\"North\",\"3rd St\"],[\"11005\",\"South\",\"3rd St\"]],\"2nd St\":[[\"10980\",\"North\",\"2nd St\"]],\"Speedway\":[[\"10981\",\"North\",\"Speedway\"],[\"11610\",\"South\",\"Speedway\"]],\"Fairmount\":[[\"10982\",\"North\",\"Fairmount\"],[\"11002\",\"South\",\"Fairmount\"]],\"Pima\":[[\"10983\",\"North\",\"Pima\"],[\"11001\",\"South\",\"Pima\"]],\"Seneca\":[[\"10984\",\"North\",\"Seneca\"],[\"11000\",\"South\",\"Seneca\"]],\"Grant\":[[\"121\",\"North\",\"Grant\"],[\"124\",\"South\",\"Grant\"]],\"Flower\":[[\"10985\",\"North\",\"Flower\"],[\"10998\",\"South\",\"Flower\"]],\"Glenn\":[[\"10986\",\"North\",\"Glenn\"],[\"10997\",\"South\",\"Glenn\"]],\"Blacklidge\":[[\"10987\",\"North\",\"Blacklidge\"],[\"10996\",\"South\",\"Blacklidge\"]],\"Fort Lowell\":[[\"14926\",\"North\",\"Fort Lowell\"],[\"14930\",\"South\",\"Fort Lowell\"]],\"Kleindale\":[[\"14927\",\"North\",\"Kleindale\"],[\"14928\",\"South\",\"Kleindale\"]],\"River\":[[\"122\",\"North\",\"River\"],[\"122\",\"South\",\"River\"]],\"Hardy\":[[\"14929\",\"South\",\"Hardy\"]],\"C De Soto\":[[\"11007\",\"South\",\"C De Soto\"]],\"Pso Dorado\":[[\"11014\",\"South\",\"Pso Dorado\"]],\"32nd St\":[[\"11018\",\"South\",\"32nd St\"],[\"11027\",\"South\",\"32nd St\"]],\"Broadmont\":[[\"16208\",\"South\",\"Broadmont\"]],\"Palo Verde and Michigan\":[[\"11032\",\"South\",\"Palo Verde and Michigan\"]],\"Corporate\":[[\"11035\",\"South\",\"Corporate\"]],\"Felix\":[[\"16126\",\"South\",\"Felix\"]],\"Milton\":[[\"11038\",\"South\",\"Milton\"]],\"Valencia and Hemisphere\":[[\"11042\",\"South\",\"Valencia and Hemisphere\"]],\"Tucson Bl and Valencia\":[[\"11045\",\"South\",\"Tucson Bl and Valencia\"]],\"Ajo and Palo Verde\":[[\"11049\",\"South\",\"Ajo and Palo Verde\"]],\"P.C. Sheriffs Dept.\":[[\"11054\",\"South\",\"P.C. Sheriffs Dept.\"]],\"Juvenile Court\":[[\"11055\",\"South\",\"Juvenile Court\"]],\"Golden Eagle Distrib\":[[\"11058\",\"South\",\"Golden Eagle Distrib\"]],\"6th Av and Ajo\":[[\"11689\",\"South\",\"6th Av and Ajo\"]]};\nstopTables[12] = \n{\"Laos\":[[\"14225\",\"North\",\"Laos\"],[\"14225\",\"South\",\"Laos\"]],\"Utah\":[[\"12111\",\"North\",\"Utah\"]],\"Liberty and Nebraska\":[[\"14819\",\"North\",\"Liberty and Nebraska\"]],\"12th Av and Nebraska\":[[\"12114\",\"North\",\"12th Av and Nebraska\"]],\"Wyoming\":[[\"12115\",\"North\",\"Wyoming\"]],\"Irvington\":[[\"12116\",\"North\",\"Irvington\"]],\"Ohio\":[[\"12117\",\"North\",\"Ohio\"],[\"12280\",\"South\",\"Ohio\"]],\"Pennsylvania\":[[\"12118\",\"North\",\"Pennsylvania\"]],\"Palmdale\":[[\"12120\",\"North\",\"Palmdale\"]],\"Ajo\":[[\"331\",\"North\",\"Ajo\"],[\"338\",\"South\",\"Ajo\"]],\"Veterans\":[[\"12123\",\"North\",\"Veterans\"],[\"12276\",\"South\",\"Veterans\"]],\"44th St\":[[\"12124\",\"North\",\"44th St\"],[\"12275\",\"South\",\"44th St\"]],\"41st St\":[[\"12125\",\"North\",\"41st St\"],[\"12274\",\"South\",\"41st St\"]],\"36th St\":[[\"12127\",\"North\",\"36th St\"]],\"32nd St\":[[\"12128\",\"North\",\"32nd St\"],[\"12271\",\"South\",\"32nd St\"]],\"29th St\":[[\"156\",\"North\",\"29th St\"],[\"167\",\"South\",\"29th St\"]],\"26th St\":[[\"12129\",\"North\",\"26th St\"],[\"12270\",\"South\",\"26th St\"]],\"23rd St\":[[\"12130\",\"North\",\"23rd St\"],[\"12079\",\"South\",\"23rd St\"]],\"20th St\":[[\"14876\",\"North\",\"20th St\"]],\"19th St\":[[\"12132\",\"North\",\"19th St\"],[\"12267\",\"South\",\"19th St\"]],\"17th St\":[[\"12133\",\"North\",\"17th St\"],[\"12266\",\"South\",\"17th St\"]],\"Main\":[[\"13434\",\"North\",\"Main\"]],\"Ochoa\":[[\"14797\",\"North\",\"Ochoa\"],[\"14796\",\"South\",\"Ochoa\"]],\"Downtown\":[[\"14201\",\"North\",\"Downtown\"],[\"14201\",\"South\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"South\",\"Grossetta\"]],\"Pennington\":[[\"10859\",\"South\",\"Pennington\"]],\"Simpson\":[[\"13278\",\"South\",\"Simpson\"]],\"21st St\":[[\"12268\",\"South\",\"21st St\"]],\"34th St\":[[\"14872\",\"South\",\"34th St\"]],\"37th St\":[[\"14871\",\"South\",\"37th St\"]],\"District\":[[\"12278\",\"South\",\"District\"]],\"Michigan\":[[\"12279\",\"South\",\"Michigan\"]],\"Oklahoma\":[[\"12281\",\"South\",\"Oklahoma\"]],\"11th Av\":[[\"12542\",\"South\",\"11th Av\"]]};\nstopTables[15] = \n{\"22nd St\":[[\"143\",\"North\",\"22nd St\"],[\"143\",\"South\",\"22nd St\"]],\"Country Club\":[[\"11859\",\"North\",\"Country Club\"]],\"Eastland and Treat\":[[\"11860\",\"North\",\"Eastland and Treat\"]],\"Eastland and Tucson\":[[\"11861\",\"North\",\"Eastland and Tucson\"],[\"11931\",\"South\",\"Eastland and Tucson\"]],\"Plumer\":[[\"11862\",\"North\",\"Plumer\"],[\"11930\",\"South\",\"Plumer\"]],\"Eastland\":[[\"11863\",\"North\",\"Eastland\"]],\"Winsett and Campbell\":[[\"11864\",\"North\",\"Winsett and Campbell\"]],\"14th St\":[[\"11865\",\"North\",\"14th St\"]],\"Campbell Av and Broadway\":[[\"144\",\"North\",\"Campbell Av and Broadway\"]],\"8th St\":[[\"11879\",\"North\",\"8th St\"]],\"6th St\":[[\"11880\",\"North\",\"6th St\"],[\"11925\",\"South\",\"6th St\"]],\"UA Mall\":[[\"100\",\"North\",\"UA Mall\"],[\"100\",\"South\",\"UA Mall\"]],\"Speedway\":[[\"11881\",\"North\",\"Speedway\"],[\"11924\",\"South\",\"Speedway\"]],\"Adams\":[[\"11882\",\"North\",\"Adams\"],[\"220\",\"South\",\"Adams\"]],\"Lester\":[[\"11883\",\"North\",\"Lester\"]],\"Seneca\":[[\"11884\",\"North\",\"Seneca\"]],\"Grant@Water\":[[\"14031\",\"North\",\"Grant@Water\"]],\"Copper\":[[\"11886\",\"North\",\"Copper\"],[\"11919\",\"South\",\"Copper\"]],\"Glenn\":[[\"11887\",\"North\",\"Glenn\"],[\"11918\",\"South\",\"Glenn\"]],\"Blacklidge\":[[\"11888\",\"North\",\"Blacklidge\"],[\"11916\",\"South\",\"Blacklidge\"]],\"Ft Lowell\":[[\"16120\",\"North\",\"Ft Lowell\"],[\"11915\",\"South\",\"Ft Lowell\"]],\"Kleindale\":[[\"11890\",\"North\",\"Kleindale\"],[\"11914\",\"South\",\"Kleindale\"]],\"Prince\":[[\"148\",\"North\",\"Prince\"],[\"16171\",\"South\",\"Prince\"]],\"Allen\":[[\"11891\",\"North\",\"Allen\"],[\"11333\",\"South\",\"Allen\"]],\"Roger and Campbell\":[[\"11892\",\"North\",\"Roger and Campbell\"]],\"Foothills MHP\":[[\"11893\",\"North\",\"Foothills MHP\"],[\"11911\",\"South\",\"Foothills MHP\"]],\"Mountain\":[[\"11894\",\"North\",\"Mountain\"],[\"11910\",\"South\",\"Mountain\"]],\"Park\":[[\"14129\",\"North\",\"Park\"],[\"11909\",\"South\",\"Park\"]],\"1st Av\":[[\"11895\",\"North\",\"1st Av\"],[\"14130\",\"North\",\"1st Av\"],[\"11908\",\"South\",\"1st Av\"]],\"4th Av\":[[\"11898\",\"North\",\"4th Av\"],[\"11907\",\"South\",\"4th Av\"]],\"Stone\":[[\"11905\",\"North\",\"Stone\"],[\"11900\",\"South\",\"Stone\"]],\"C Arizona\":[[\"13741\",\"North\",\"C Arizona\"]],\"Dorothy\":[[\"14925\",\"North\",\"Dorothy\"]],\"Tohono\":[[\"14235\",\"North\",\"Tohono\"],[\"14235\",\"South\",\"Tohono\"]],\"Wetmore\":[[\"11549\",\"South\",\"Wetmore\"]],\"Limberlost\":[[\"11904\",\"South\",\"Limberlost\"]],\"Roger\":[[\"11912\",\"South\",\"Roger\"]],\"Grant@Edison\":[[\"106\",\"South\",\"Grant@Edison\"]],\"Waverly\":[[\"11921\",\"South\",\"Waverly\"]],\"9th St\":[[\"11926\",\"South\",\"9th St\"]],\"Kino Pw and Broadway\":[[\"153\",\"South\",\"Kino Pw and Broadway\"]],\"Kino Blvd\":[[\"11927\",\"South\",\"Kino Blvd\"]],\"17th St\":[[\"11928\",\"South\",\"17th St\"]],\"Eastland and Campbell\":[[\"11929\",\"South\",\"Eastland and Campbell\"]],\"22nd St and Tucson\":[[\"11932\",\"South\",\"22nd St and Tucson\"]],\"22nd St and Treat\":[[\"13291\",\"South\",\"22nd St and Treat\"]]};\nstopTables[16] = \n{\"Downtown\":[[\"14200\",\"North\",\"Downtown\"],[\"14200\",\"South\",\"Downtown\"]],\"7th Av\":[[\"14761\",\"North\",\"7th Av\"],[\"11525\",\"South\",\"7th Av\"]],\"Speedway\":[[\"11368\",\"North\",\"Speedway\"],[\"11167\",\"South\",\"Speedway\"]],\"Drachman and Stone\":[[\"12142\",\"North\",\"Drachman and Stone\"]],\"11th Av\":[[\"12143\",\"North\",\"11th Av\"],[\"12253\",\"South\",\"11th Av\"]],\"Lee\":[[\"11409\",\"North\",\"Lee\"],[\"11388\",\"South\",\"Lee\"]],\"Plata\":[[\"14843\",\"North\",\"Plata\"],[\"11387\",\"South\",\"Plata\"]],\"Rillito\":[[\"16156\",\"North\",\"Rillito\"]],\"Grant\":[[\"157\",\"North\",\"Grant\"],[\"116\",\"South\",\"Grant\"]],\"Jacinto\":[[\"11413\",\"North\",\"Jacinto\"],[\"11384\",\"South\",\"Jacinto\"]],\"Glenn\":[[\"11414\",\"North\",\"Glenn\"],[\"11383\",\"South\",\"Glenn\"]],\"Blacklidge\":[[\"12150\",\"North\",\"Blacklidge\"],[\"12246\",\"South\",\"Blacklidge\"]],\"Ft Lowell\":[[\"12151\",\"North\",\"Ft Lowell\"],[\"12245\",\"South\",\"Ft Lowell\"]],\"Yavapai\":[[\"12152\",\"North\",\"Yavapai\"]],\"Prince\":[[\"12153\",\"North\",\"Prince\"],[\"12243\",\"South\",\"Prince\"]],\"Pastime\":[[\"12154\",\"North\",\"Pastime\"]],\"Roger\":[[\"12155\",\"North\",\"Roger\"],[\"12241\",\"South\",\"Roger\"]],\"Limberlost\":[[\"12156\",\"North\",\"Limberlost\"],[\"12240\",\"South\",\"Limberlost\"]],\"Wetmore and Oracle\":[[\"12157\",\"North\",\"Wetmore and Oracle\"]],\"Tohono\":[[\"14241\",\"North\",\"Tohono\"],[\"14234\",\"North\",\"Tohono\"],[\"14241\",\"South\",\"Tohono\"]],\"Stone and River\":[[\"14494\",\"North\",\"Stone and River\"],[\"12902\",\"South\",\"Stone and River\"]],\"River and Stone\":[[\"11350\",\"North\",\"River and Stone\"]],\"Oracle and River\":[[\"12159\",\"North\",\"Oracle and River\"]],\"Las Lomitas\":[[\"12164\",\"North\",\"Las Lomitas\"],[\"12232\",\"South\",\"Las Lomitas\"]],\"Rudasill\":[[\"14366\",\"North\",\"Rudasill\"],[\"11328\",\"South\",\"Rudasill\"]],\"Orange Grove\":[[\"284\",\"North\",\"Orange Grove\"],[\"287\",\"South\",\"Orange Grove\"]],\"Casas Adobes Rd\":[[\"12169\",\"North\",\"Casas Adobes Rd\"],[\"12227\",\"South\",\"Casas Adobes Rd\"]],\"Via Ponte and Ina\":[[\"14901\",\"North\",\"Via Ponte and Ina\"]],\"Oracle and Ina\":[[\"165\",\"North\",\"Oracle and Ina\"],[\"165\",\"South\",\"Oracle and Ina\"]],\"Ina and Oracle\":[[\"14156\",\"North\",\"Ina and Oracle\"]],\"Pso Del Norte\":[[\"11352\",\"North\",\"Pso Del Norte\"]],\"La Oesta\":[[\"12175\",\"North\",\"La Oesta\"]],\"La Canada\":[[\"11355\",\"North\",\"La Canada\"],[\"11494\",\"South\",\"La Canada\"]],\"Express Care\":[[\"12178\",\"North\",\"Express Care\"],[\"12212\",\"South\",\"Express Care\"]],\"Magic Pl\":[[\"11357\",\"North\",\"Magic Pl\"]],\"Casablanca\":[[\"11358\",\"North\",\"Casablanca\"],[\"12210\",\"South\",\"Casablanca\"]],\"La Cholla\":[[\"271\",\"North\",\"La Cholla\"],[\"283\",\"South\",\"La Cholla\"],[\"12209\",\"South\",\"La Cholla\"]],\"2300 W Ina Road WB\":[[\"11359\",\"North\",\"2300 W Ina Road WB\"]],\"Crystal Cave\":[[\"12183\",\"North\",\"Crystal Cave\"]],\"Shama Wing\":[[\"11951\",\"North\",\"Shama Wing\"],[\"11959\",\"South\",\"Shama Wing\"]],\"Shannon\":[[\"11362\",\"North\",\"Shannon\"],[\"11469\",\"South\",\"Shannon\"]],\"3220 W Ina Road WB\":[[\"14365\",\"North\",\"3220 W Ina Road WB\"]],\"Cmo De La Tierra\":[[\"11364\",\"North\",\"Cmo De La Tierra\"],[\"11467\",\"South\",\"Cmo De La Tierra\"]],\"Ina Rd\":[[\"14155\",\"North\",\"Ina Rd\"]],\"Lowe's and Ina\":[[\"159\",\"North\",\"Lowe's and Ina\"],[\"159\",\"South\",\"Lowe's and Ina\"]],\"Thornydale\":[[\"11466\",\"South\",\"Thornydale\"]],\"3201 W Ina Road EB\":[[\"11486\",\"South\",\"3201 W Ina Road EB\"]],\"Mona Lisa\":[[\"11471\",\"South\",\"Mona Lisa\"]],\"Omar\":[[\"11472\",\"South\",\"Omar\"]],\"Magic Ln\":[[\"12211\",\"South\",\"Magic Ln\"]],\"Pampa Pl\":[[\"12214\",\"South\",\"Pampa Pl\"]],\"Via Ponte\":[[\"11497\",\"South\",\"Via Ponte\"]],\"Lavery Ln\":[[\"12230\",\"South\",\"Lavery Ln\"]],\"Cresta Loma\":[[\"12234\",\"South\",\"Cresta Loma\"]],\"River and Oracle\":[[\"12236\",\"South\",\"River and Oracle\"]],\"Wetmore\":[[\"12239\",\"South\",\"Wetmore\"]],\"Simmons St\":[[\"12242\",\"South\",\"Simmons St\"]],\"Alturas\":[[\"11385\",\"South\",\"Alturas\"]],\"Flores\":[[\"16200\",\"South\",\"Flores\"]],\"9th Av\":[[\"12254\",\"South\",\"9th Av\"]],\"University\":[[\"11168\",\"South\",\"University\"]]};\nstopTables[17] = \n{\"Houghton Park&Ride\":[[\"15027\",\"North\",\"Houghton Park&Ride\"],[\"15027\",\"South\",\"Houghton Park&Ride\"]],\"Houghton\":[[\"16270\",\"North\",\"Houghton\"],[\"15993\",\"South\",\"Houghton\"]],\"Leland\":[[\"16264\",\"North\",\"Leland\"]],\"Shadow Brook\":[[\"16265\",\"North\",\"Shadow Brook\"]],\"Vozack\":[[\"16266\",\"North\",\"Vozack\"],[\"16267\",\"South\",\"Vozack\"]],\"Harrison and Broadway\":[[\"14143\",\"North\",\"Harrison and Broadway\"]],\"Kenyon\":[[\"15985\",\"North\",\"Kenyon\"],[\"15991\",\"South\",\"Kenyon\"]],\"Harrison and 22nd St\":[[\"14540\",\"North\",\"Harrison and 22nd St\"],[\"14136\",\"South\",\"Harrison and 22nd St\"]],\"Pikes Peak\":[[\"14541\",\"North\",\"Pikes Peak\"]],\"Palm Tree\":[[\"14542\",\"North\",\"Palm Tree\"],[\"14531\",\"South\",\"Palm Tree\"]],\"Harrison and 29th St\":[[\"14145\",\"North\",\"Harrison and 29th St\"],[\"12294\",\"South\",\"Harrison and 29th St\"]],\"Thomas\":[[\"14137\",\"North\",\"Thomas\"]],\"Harrison and Golf Links\":[[\"51\",\"North\",\"Harrison and Golf Links\"],[\"35\",\"South\",\"Harrison and Golf Links\"]],\"Golf Links and Harrison\":[[\"14523\",\"North\",\"Golf Links and Harrison\"]],\"Cathy\":[[\"14621\",\"North\",\"Cathy\"],[\"14715\",\"South\",\"Cathy\"]],\"Palm Springs\":[[\"11803\",\"North\",\"Palm Springs\"]],\"Cmo Seco\":[[\"11804\",\"North\",\"Cmo Seco\"]],\"Pantano Pkwy\":[[\"11805\",\"North\",\"Pantano Pkwy\"],[\"11785\",\"South\",\"Pantano Pkwy\"]],\"Jaguar\":[[\"14606\",\"North\",\"Jaguar\"]],\"Saddleback\":[[\"11808\",\"North\",\"Saddleback\"],[\"11782\",\"South\",\"Saddleback\"]],\"Lakeside Pkwy\":[[\"11809\",\"North\",\"Lakeside Pkwy\"],[\"11781\",\"South\",\"Lakeside Pkwy\"]],\"Pantano Rd\":[[\"11810\",\"North\",\"Pantano Rd\"],[\"11780\",\"South\",\"Pantano Rd\"]],\"Marc Dr\":[[\"11811\",\"North\",\"Marc Dr\"],[\"11779\",\"South\",\"Marc Dr\"]],\"Prudence\":[[\"11812\",\"North\",\"Prudence\"],[\"11778\",\"South\",\"Prudence\"]],\"Cordova\":[[\"11813\",\"North\",\"Cordova\"],[\"11777\",\"South\",\"Cordova\"]],\"Kolb\":[[\"11814\",\"North\",\"Kolb\"],[\"14417\",\"South\",\"Kolb\"]],\"Golf Links Cir\":[[\"11815\",\"North\",\"Golf Links Cir\"]],\"Av Regulo\":[[\"11816\",\"North\",\"Av Regulo\"]],\"C Polar\":[[\"11817\",\"North\",\"C Polar\"],[\"11772\",\"South\",\"C Polar\"]],\"Wilmot and Golf Links\":[[\"14115\",\"North\",\"Wilmot and Golf Links\"]],\"C Marte\":[[\"14116\",\"North\",\"C Marte\"]],\"29th St and Wilmot\":[[\"11820\",\"North\",\"29th St and Wilmot\"]],\"Alamo\":[[\"11821\",\"North\",\"Alamo\"]],\"Sahuara\":[[\"11822\",\"North\",\"Sahuara\"],[\"11766\",\"South\",\"Sahuara\"]],\"Van Buren\":[[\"11823\",\"North\",\"Van Buren\"],[\"11765\",\"South\",\"Van Buren\"]],\"Craycroft\":[[\"14344\",\"North\",\"Craycroft\"],[\"12779\",\"South\",\"Craycroft\"]],\"Beverly\":[[\"11824\",\"North\",\"Beverly\"],[\"12778\",\"South\",\"Beverly\"]],\"Rosemont\":[[\"11825\",\"North\",\"Rosemont\"],[\"11762\",\"South\",\"Rosemont\"]],\"4929 E 29th St\":[[\"11826\",\"North\",\"4929 E 29th St\"]],\"Swan\":[[\"11827\",\"North\",\"Swan\"],[\"11760\",\"South\",\"Swan\"]],\"Belvedere\":[[\"11828\",\"North\",\"Belvedere\"],[\"11758\",\"South\",\"Belvedere\"]],\"Columbus\":[[\"11829\",\"North\",\"Columbus\"],[\"16119\",\"South\",\"Columbus\"]],\"Irving\":[[\"140\",\"North\",\"Irving\"],[\"135\",\"South\",\"Irving\"]],\"Winstel\":[[\"14739\",\"North\",\"Winstel\"],[\"14740\",\"South\",\"Winstel\"]],\"Chrysler\":[[\"11246\",\"North\",\"Chrysler\"]],\"Palo Verde\":[[\"11247\",\"North\",\"Palo Verde\"]],\"Randolph Way\":[[\"11249\",\"North\",\"Randolph Way\"]],\"Silverlake\":[[\"11250\",\"North\",\"Silverlake\"]],\"27th St\":[[\"11251\",\"North\",\"27th St\"],[\"13966\",\"South\",\"27th St\"]],\"23rd St\":[[\"11252\",\"North\",\"23rd St\"],[\"13965\",\"South\",\"23rd St\"]],\"Country Club and 22nd St\":[[\"143\",\"North\",\"Country Club and 22nd St\"]],\"Eastland\":[[\"11255\",\"North\",\"Eastland\"],[\"11749\",\"South\",\"Eastland\"]],\"17th St\":[[\"11256\",\"North\",\"17th St\"]],\"Arroyo Chico\":[[\"11257\",\"North\",\"Arroyo Chico\"],[\"11747\",\"South\",\"Arroyo Chico\"]],\"Country Club and Broadway\":[[\"170\",\"North\",\"Country Club and Broadway\"],[\"179\",\"South\",\"Country Club and Broadway\"]],\"8th St\":[[\"11843\",\"North\",\"8th St\"],[\"11743\",\"South\",\"8th St\"]],\"5th St\":[[\"13868\",\"North\",\"5th St\"],[\"13956\",\"South\",\"5th St\"]],\"3rd St\":[[\"13869\",\"North\",\"3rd St\"],[\"13955\",\"South\",\"3rd St\"]],\"Speedway\":[[\"13870\",\"North\",\"Speedway\"],[\"13954\",\"South\",\"Speedway\"]],\"Adams\":[[\"13871\",\"North\",\"Adams\"]],\"Pima\":[[\"13872\",\"North\",\"Pima\"]],\"Seneca\":[[\"13873\",\"North\",\"Seneca\"],[\"13951\",\"South\",\"Seneca\"]],\"Grant\":[[\"171\",\"North\",\"Grant\"],[\"178\",\"South\",\"Grant\"]],\"Flower\":[[\"13874\",\"North\",\"Flower\"],[\"13950\",\"South\",\"Flower\"]],\"Glenn\":[[\"13875\",\"North\",\"Glenn\"],[\"13949\",\"South\",\"Glenn\"]],\"Blacklidge\":[[\"13876\",\"North\",\"Blacklidge\"],[\"13948\",\"South\",\"Blacklidge\"]],\"Ft Lowell\":[[\"13877\",\"North\",\"Ft Lowell\"],[\"13947\",\"South\",\"Ft Lowell\"]],\"Kleindale\":[[\"13878\",\"North\",\"Kleindale\"],[\"13946\",\"South\",\"Kleindale\"]],\"Country Club\":[[\"13879\",\"North\",\"Country Club\"],[\"13945\",\"South\",\"Country Club\"]],\"Cactus\":[[\"13880\",\"North\",\"Cactus\"]],\"Tucson\":[[\"13881\",\"North\",\"Tucson\"],[\"13943\",\"South\",\"Tucson\"]],\"Wilson\":[[\"13882\",\"North\",\"Wilson\"],[\"13942\",\"South\",\"Wilson\"]],\"Campbell\":[[\"13883\",\"North\",\"Campbell\"],[\"13941\",\"South\",\"Campbell\"]],\"Cherry\":[[\"13884\",\"North\",\"Cherry\"],[\"13940\",\"South\",\"Cherry\"]],\"Santa Rita\":[[\"14993\",\"North\",\"Santa Rita\"]],\"Park\":[[\"13886\",\"North\",\"Park\"],[\"13938\",\"South\",\"Park\"]],\"1st Av\":[[\"177\",\"North\",\"1st Av\"],[\"172\",\"South\",\"1st Av\"]],\"Geronimo\":[[\"14444\",\"North\",\"Geronimo\"]],\"Stone\":[[\"12086\",\"North\",\"Stone\"],[\"12096\",\"South\",\"Stone\"]],\"226 W Prince\":[[\"13890\",\"North\",\"226 W Prince\"]],\"Oracle\":[[\"334\",\"North\",\"Oracle\"],[\"342\",\"South\",\"Oracle\"]],\"680 W Prince\":[[\"14999\",\"North\",\"680 W Prince\"]],\"Fairview\":[[\"13894\",\"North\",\"Fairview\"],[\"13931\",\"South\",\"Fairview\"]],\"1120 W Prince\":[[\"13895\",\"North\",\"1120 W Prince\"]],\"Flowing Wells\":[[\"13896\",\"North\",\"Flowing Wells\"],[\"12087\",\"North\",\"Flowing Wells\"],[\"12094\",\"South\",\"Flowing Wells\"]],\"Pomona\":[[\"14880\",\"North\",\"Pomona\"]],\"Prince\":[[\"13900\",\"North\",\"Prince\"]],\"Smoot\":[[\"15949\",\"North\",\"Smoot\"],[\"15950\",\"South\",\"Smoot\"]],\"Roger\":[[\"11430\",\"North\",\"Roger\"],[\"15948\",\"South\",\"Roger\"]],\"Root Ln\":[[\"16217\",\"North\",\"Root Ln\"],[\"16218\",\"South\",\"Root Ln\"]],\"Wetmore and Romero\":[[\"14486\",\"North\",\"Wetmore and Romero\"]],\"Berni Av\":[[\"16232\",\"North\",\"Berni Av\"]],\"La Cholla and Wetmore\":[[\"14620\",\"North\",\"La Cholla and Wetmore\"],[\"14783\",\"South\",\"La Cholla and Wetmore\"]],\"Brittain\":[[\"14820\",\"North\",\"Brittain\"],[\"14821\",\"South\",\"Brittain\"]],\"La Cholla\":[[\"11964\",\"North\",\"La Cholla\"]],\"Sullinger\":[[\"13909\",\"North\",\"Sullinger\"],[\"13919\",\"South\",\"Sullinger\"]],\"Kain\":[[\"13910\",\"North\",\"Kain\"],[\"13918\",\"South\",\"Kain\"]],\"C Comodo\":[[\"13911\",\"North\",\"C Comodo\"]],\"Kimberly Pl\":[[\"13912\",\"North\",\"Kimberly Pl\"]],\"Curtis and Plane\":[[\"13913\",\"North\",\"Curtis and Plane\"]],\"Fire Station\":[[\"174\",\"North\",\"Fire Station\"]],\"Diamond\":[[\"13915\",\"North\",\"Diamond\"]],\"Davis and Ruthrauff\":[[\"15952\",\"North\",\"Davis and Ruthrauff\"],[\"15952\",\"South\",\"Davis and Ruthrauff\"]],\"Ruthrauff and Plane\":[[\"13917\",\"South\",\"Ruthrauff and Plane\"]],\"La Cholla and Ruthrauff\":[[\"14618\",\"South\",\"La Cholla and Ruthrauff\"]],\"Frey Av\":[[\"14782\",\"South\",\"Frey Av\"]],\"Romero and Wetmore\":[[\"173\",\"South\",\"Romero and Wetmore\"]],\"Prince and Romero\":[[\"335\",\"South\",\"Prince and Romero\"]],\"Iroquois\":[[\"11425\",\"South\",\"Iroquois\"]],\"1103 W Prince\":[[\"13930\",\"South\",\"1103 W Prince\"]],\"541 W Prince\":[[\"14376\",\"South\",\"541 W Prince\"]],\"120 W Prince\":[[\"13934\",\"South\",\"120 W Prince\"]],\"218 E Prince Rd\":[[\"13936\",\"South\",\"218 E Prince Rd\"]],\"414 E Prince\":[[\"14345\",\"South\",\"414 E Prince\"]],\"Mountain\":[[\"13939\",\"South\",\"Mountain\"]],\"Treat\":[[\"13944\",\"South\",\"Treat\"]],\"Elm\":[[\"13952\",\"South\",\"Elm\"]],\"Drachman\":[[\"13953\",\"South\",\"Drachman\"]],\"Winsett\":[[\"16043\",\"South\",\"Winsett\"]],\"30th St\":[[\"13967\",\"South\",\"30th St\"]],\"Howard Strav\":[[\"13969\",\"South\",\"Howard Strav\"]],\"Kelvin\":[[\"13970\",\"South\",\"Kelvin\"]],\"Dodge\":[[\"14727\",\"South\",\"Dodge\"]],\"Venice\":[[\"11759\",\"South\",\"Venice\"]],\"4880 E 29th St\":[[\"11761\",\"South\",\"4880 E 29th St\"]],\"Farwell\":[[\"11763\",\"South\",\"Farwell\"]],\"Zuni\":[[\"11767\",\"South\",\"Zuni\"]],\"Wilmot and 29th St\":[[\"11768\",\"South\",\"Wilmot and 29th St\"]],\"Golf Links and Wilmot\":[[\"11771\",\"South\",\"Golf Links and Wilmot\"]],\"Mann\":[[\"11774\",\"South\",\"Mann\"]],\"Langley\":[[\"11775\",\"South\",\"Langley\"]],\"Sarnoff\":[[\"11783\",\"South\",\"Sarnoff\"]],\"Oakenshield\":[[\"11786\",\"South\",\"Oakenshield\"]],\"Desert Cavern\":[[\"16132\",\"South\",\"Desert Cavern\"]],\"Harrison Circle\":[[\"14698\",\"South\",\"Harrison Circle\"]],\"Topout Peak\":[[\"14839\",\"South\",\"Topout Peak\"]],\"Broadway and Harrison\":[[\"16135\",\"South\",\"Broadway and Harrison\"]],\"Bonanza\":[[\"16268\",\"South\",\"Bonanza\"]],\"Sonoran Heights\":[[\"16269\",\"South\",\"Sonoran Heights\"]]};\nstopTables[18] = \n{\"Laos\":[[\"14223\",\"North\",\"Laos\"],[\"14223\",\"South\",\"Laos\"]],\"Irvington\":[[\"10926\",\"North\",\"Irvington\"]],\"Oklahoma\":[[\"10927\",\"North\",\"Oklahoma\"],[\"11065\",\"South\",\"Oklahoma\"]],\"Illinois\":[[\"10928\",\"North\",\"Illinois\"],[\"11064\",\"South\",\"Illinois\"]],\"Michigan\":[[\"10929\",\"North\",\"Michigan\"],[\"11063\",\"South\",\"Michigan\"]],\"District\":[[\"10930\",\"North\",\"District\"],[\"11061\",\"South\",\"District\"]],\"President\":[[\"10931\",\"North\",\"President\"]],\"Ajo\":[[\"11060\",\"North\",\"Ajo\"],[\"11689\",\"South\",\"Ajo\"]],\"Veterans\":[[\"13461\",\"North\",\"Veterans\"],[\"13447\",\"South\",\"Veterans\"]],\"39th St\":[[\"13463\",\"North\",\"39th St\"],[\"13445\",\"South\",\"39th St\"]],\"36th St\":[[\"13464\",\"North\",\"36th St\"]],\"33rd St\":[[\"13465\",\"North\",\"33rd St\"]],\"31st St\":[[\"13466\",\"North\",\"31st St\"]],\"29th St\":[[\"76\",\"North\",\"29th St\"],[\"91\",\"South\",\"29th St\"]],\"26th St\":[[\"13467\",\"North\",\"26th St\"]],\"22nd St\":[[\"13469\",\"North\",\"22nd St\"],[\"13440\",\"South\",\"22nd St\"]],\"20th St\":[[\"13470\",\"North\",\"20th St\"],[\"13439\",\"South\",\"20th St\"]],\"17th St\":[[\"13472\",\"North\",\"17th St\"]],\"15th St\":[[\"16100\",\"North\",\"15th St\"]],\"12th St\":[[\"13474\",\"North\",\"12th St\"],[\"16204\",\"South\",\"12th St\"]],\"Downtown\":[[\"14204\",\"North\",\"Downtown\"],[\"14204\",\"South\",\"Downtown\"]],\"14th St\":[[\"16189\",\"South\",\"14th St\"]],\"18th St\":[[\"13438\",\"South\",\"18th St\"]],\"27th St\":[[\"13441\",\"South\",\"27th St\"]],\"34th St\":[[\"13443\",\"South\",\"34th St\"]],\"37th St\":[[\"13444\",\"South\",\"37th St\"]],\"44th St\":[[\"13446\",\"South\",\"44th St\"]]};\nstopTables[19] = \n{\"Downtown\":[[\"14206\",\"North\",\"Downtown\"],[\"14206\",\"South\",\"Downtown\"]],\"7th Av\":[[\"14761\",\"North\",\"7th Av\"],[\"11525\",\"South\",\"7th Av\"]],\"Speedway\":[[\"11368\",\"North\",\"Speedway\"],[\"11167\",\"South\",\"Speedway\"]],\"Lester\":[[\"14962\",\"North\",\"Lester\"],[\"13754\",\"South\",\"Lester\"]],\"Flores\":[[\"13732\",\"North\",\"Flores\"],[\"13753\",\"South\",\"Flores\"]],\"Grant\":[[\"14179\",\"North\",\"Grant\"],[\"14189\",\"South\",\"Grant\"]],\"Jacinto\":[[\"13733\",\"North\",\"Jacinto\"],[\"13752\",\"South\",\"Jacinto\"]],\"Glenn\":[[\"11499\",\"North\",\"Glenn\"],[\"13751\",\"South\",\"Glenn\"]],\"Blacklidge\":[[\"13735\",\"North\",\"Blacklidge\"],[\"13750\",\"South\",\"Blacklidge\"]],\"Navajo\":[[\"13736\",\"North\",\"Navajo\"]],\"Yavapai\":[[\"13737\",\"North\",\"Yavapai\"],[\"13748\",\"South\",\"Yavapai\"]],\"Prince\":[[\"12095\",\"North\",\"Prince\"],[\"13747\",\"South\",\"Prince\"]],\"Pastime\":[[\"13739\",\"North\",\"Pastime\"],[\"13746\",\"South\",\"Pastime\"]],\"Roger\":[[\"11500\",\"North\",\"Roger\"],[\"11550\",\"South\",\"Roger\"]],\"C Arizona\":[[\"13741\",\"North\",\"C Arizona\"]],\"Dorothy\":[[\"14925\",\"North\",\"Dorothy\"]],\"Tohono\":[[\"14240\",\"North\",\"Tohono\"],[\"14240\",\"South\",\"Tohono\"]],\"Wetmore\":[[\"11549\",\"South\",\"Wetmore\"]],\"Limberlost\":[[\"11904\",\"South\",\"Limberlost\"]],\"Ft Lowell\":[[\"13749\",\"South\",\"Ft Lowell\"]],\"Drachman\":[[\"13755\",\"South\",\"Drachman\"]],\"University\":[[\"11168\",\"South\",\"University\"]]};\nstopTables[21] = \n{\"Downtown\":[[\"129\",\"North\",\"Downtown\"],[\"129\",\"South\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"North\",\"Grossetta\"]],\"Court Av\":[[\"11172\",\"North\",\"Court Av\"]],\"Granada\":[[\"11464\",\"North\",\"Granada\"],[\"11455\",\"South\",\"Granada\"]],\"I-10\":[[\"12473\",\"North\",\"I-10\"]],\"Bonita\":[[\"12467\",\"North\",\"Bonita\"]],\"Av del Convento\":[[\"12466\",\"North\",\"Av del Convento\"],[\"11727\",\"South\",\"Av del Convento\"]],\"Grande\":[[\"132\",\"North\",\"Grande\"],[\"14197\",\"South\",\"Grande\"]],\"Congress\":[[\"12429\",\"North\",\"Congress\"]],\"Alameda\":[[\"12430\",\"North\",\"Alameda\"],[\"11723\",\"South\",\"Alameda\"]],\"Fresno\":[[\"12431\",\"North\",\"Fresno\"],[\"11722\",\"South\",\"Fresno\"]],\"Cuesta\":[[\"14198\",\"North\",\"Cuesta\"]],\"Sonoran Palms Apts\":[[\"12433\",\"North\",\"Sonoran Palms Apts\"]],\"St Mary's\":[[\"12434\",\"North\",\"St Mary's\"],[\"12586\",\"North\",\"St Mary's\"],[\"14196\",\"South\",\"St Mary's\"]],\"San Jose\":[[\"11718\",\"North\",\"San Jose\"],[\"12587\",\"South\",\"San Jose\"]],\"Riley Circle\":[[\"12588\",\"North\",\"Riley Circle\"]],\"Speedway\":[[\"14506\",\"North\",\"Speedway\"],[\"11716\",\"South\",\"Speedway\"]],\"Albertson\":[[\"14507\",\"North\",\"Albertson\"],[\"14513\",\"South\",\"Albertson\"]],\"C Campana de Plata\":[[\"14508\",\"North\",\"C Campana de Plata\"],[\"14512\",\"South\",\"C Campana de Plata\"]],\"Lester\":[[\"12489\",\"North\",\"Lester\"],[\"14511\",\"South\",\"Lester\"]],\"Riverview\":[[\"12490\",\"North\",\"Riverview\"]],\"Tanglewood\":[[\"12491\",\"North\",\"Tanglewood\"]],\"Grant\":[[\"14808\",\"North\",\"Grant\"]],\"Frostwood Pl\":[[\"14810\",\"North\",\"Frostwood Pl\"],[\"14813\",\"South\",\"Frostwood Pl\"]],\"Silver Arrow Dr\":[[\"14811\",\"North\",\"Silver Arrow Dr\"]],\"Dales Crossing\":[[\"15003\",\"North\",\"Dales Crossing\"],[\"15003\",\"South\",\"Dales Crossing\"]],\"Ironwood Hill\":[[\"14503\",\"South\",\"Ironwood Hill\"]],\"Rainbow Ridge\":[[\"15963\",\"South\",\"Rainbow Ridge\"]],\"C Mecedora\":[[\"11717\",\"South\",\"C Mecedora\"]],\"Tucson Terrace\":[[\"11719\",\"South\",\"Tucson Terrace\"]],\"Silverbell\":[[\"11720\",\"South\",\"Silverbell\"]],\"Pennington\":[[\"11724\",\"South\",\"Pennington\"]],\"Westmoreland\":[[\"11725\",\"South\",\"Westmoreland\"]],\"Central\":[[\"14900\",\"South\",\"Central\"]],\"Church\":[[\"16212\",\"South\",\"Church\"]]};\nstopTables[22] = \n{\"Downtown\":[[\"14216\",\"North\",\"Downtown\"],[\"14216\",\"South\",\"Downtown\"]],\"Grossetta\":[[\"10858\",\"North\",\"Grossetta\"]],\"Court Av\":[[\"11172\",\"North\",\"Court Av\"],[\"12446\",\"South\",\"Court Av\"]],\"Granada\":[[\"11464\",\"North\",\"Granada\"],[\"11455\",\"South\",\"Granada\"]],\"I-10\":[[\"12473\",\"North\",\"I-10\"]],\"Congress\":[[\"13151\",\"North\",\"Congress\"],[\"13151\",\"South\",\"Congress\"]],\"Commerce Park Lp and Bonita\":[[\"16162\",\"North\",\"Commerce Park Lp and Bonita\"],[\"16162\",\"South\",\"Commerce Park Lp and Bonita\"]],\"PCC Community Campus\":[[\"16256\",\"North\",\"PCC Community Campus\"],[\"16256\",\"South\",\"PCC Community Campus\"]],\"Congress and Bonita\":[[\"12467\",\"North\",\"Congress and Bonita\"]],\"Av del Convento\":[[\"12466\",\"North\",\"Av del Convento\"],[\"11727\",\"South\",\"Av del Convento\"]],\"Alameda\":[[\"12477\",\"North\",\"Alameda\"]],\"Emery\":[[\"12478\",\"North\",\"Emery\"],[\"12463\",\"South\",\"Emery\"]],\"St Mary's\":[[\"12437\",\"North\",\"St Mary's\"],[\"12462\",\"South\",\"St Mary's\"]],\"Huron St\":[[\"12438\",\"North\",\"Huron St\"]],\"Speedway and Grande\":[[\"226\",\"North\",\"Speedway and Grande\"]],\"Riverview and Speedway\":[[\"189\",\"North\",\"Riverview and Speedway\"],[\"192\",\"South\",\"Riverview and Speedway\"]],\"Hualpai Rd.\":[[\"12482\",\"North\",\"Hualpai Rd.\"]],\"El Rio Dr and Riverview\":[[\"12483\",\"North\",\"El Rio Dr and Riverview\"]],\"Navajo\":[[\"12458\",\"North\",\"Navajo\"],[\"12484\",\"South\",\"Navajo\"]],\"Mohave\":[[\"12485\",\"North\",\"Mohave\"],[\"12457\",\"South\",\"Mohave\"]],\"Aztec\":[[\"12486\",\"North\",\"Aztec\"],[\"12456\",\"South\",\"Aztec\"]],\"Huachuca\":[[\"12487\",\"North\",\"Huachuca\"]],\"Chiricahua\":[[\"12488\",\"North\",\"Chiricahua\"]],\"Silverbell and Lester\":[[\"12489\",\"North\",\"Silverbell and Lester\"]],\"Silverbell and Riverview\":[[\"12490\",\"North\",\"Silverbell and Riverview\"]],\"Tanglewood\":[[\"12491\",\"North\",\"Tanglewood\"]],\"Silverbell\":[[\"186\",\"North\",\"Silverbell\"],[\"186\",\"South\",\"Silverbell\"]],\"Jordan\":[[\"12400\",\"South\",\"Jordan\"]],\"Coyote Dr\":[[\"12451\",\"South\",\"Coyote Dr\"]],\"Grant\":[[\"12452\",\"South\",\"Grant\"]],\"Rillito\":[[\"12453\",\"South\",\"Rillito\"]],\"Dragoon and Riverview\":[[\"12454\",\"South\",\"Dragoon and Riverview\"]],\"Dragoon and Lester\":[[\"12455\",\"South\",\"Dragoon and Lester\"]],\"El Rio Dr\":[[\"12459\",\"South\",\"El Rio Dr\"]],\"Grande and Speedway\":[[\"11704\",\"South\",\"Grande and Speedway\"]],\"Ontario\":[[\"11705\",\"South\",\"Ontario\"]],\"Sonora\":[[\"11706\",\"South\",\"Sonora\"]],\"Franklin\":[[\"12464\",\"South\",\"Franklin\"]],\"Congress and Grande\":[[\"14197\",\"South\",\"Congress and Grande\"]],\"I-10 Interstate\":[[\"13690\",\"South\",\"I-10 Interstate\"]],\"St Marys\":[[\"12444\",\"South\",\"St Marys\"]],\"Ashbury Ln\":[[\"13692\",\"South\",\"Ashbury Ln\"]],\"Central\":[[\"14900\",\"South\",\"Central\"]],\"Church\":[[\"16212\",\"South\",\"Church\"]]};\nstopTables[23] = \n{\"Laos\":[[\"14218\",\"North\",\"Laos\"],[\"14218\",\"South\",\"Laos\"]],\"Utah\":[[\"12111\",\"North\",\"Utah\"]],\"Liberty and Nebraska\":[[\"14819\",\"North\",\"Liberty and Nebraska\"]],\"12th Av and Nebraska\":[[\"12114\",\"North\",\"12th Av and Nebraska\"]],\"13th Av\":[[\"11976\",\"North\",\"13th Av\"]],\"15th Av\":[[\"11977\",\"North\",\"15th Av\"],[\"12541\",\"South\",\"15th Av\"]],\"C Santa Cruz\":[[\"14737\",\"North\",\"C Santa Cruz\"],[\"14738\",\"South\",\"C Santa Cruz\"]],\"Rio Seco Apts\":[[\"12715\",\"North\",\"Rio Seco Apts\"],[\"12566\",\"South\",\"Rio Seco Apts\"]],\"Midvale Park\":[[\"14718\",\"North\",\"Midvale Park\"],[\"14719\",\"South\",\"Midvale Park\"]],\"Irvington Rd\":[[\"11993\",\"North\",\"Irvington Rd\"]],\"Irvington Pl\":[[\"11994\",\"North\",\"Irvington Pl\"]],\"Mission Pl\":[[\"15935\",\"North\",\"Mission Pl\"],[\"15934\",\"South\",\"Mission Pl\"]],\"Via Ingresso\":[[\"11995\",\"North\",\"Via Ingresso\"],[\"12528\",\"South\",\"Via Ingresso\"]],\"Ajo\":[[\"195\",\"North\",\"Ajo\"],[\"200\",\"South\",\"Ajo\"]],\"Veterans\":[[\"11996\",\"North\",\"Veterans\"],[\"12522\",\"South\",\"Veterans\"]],\"C La Paz\":[[\"11997\",\"North\",\"C La Paz\"],[\"12521\",\"South\",\"C La Paz\"]],\"2800 Block\":[[\"11999\",\"North\",\"2800 Block\"],[\"12518\",\"South\",\"2800 Block\"]],\"36th St and Mission\":[[\"12000\",\"North\",\"36th St and Mission\"],[\"12517\",\"South\",\"36th St and Mission\"]],\"Lands End\":[[\"12001\",\"North\",\"Lands End\"],[\"12516\",\"South\",\"Lands End\"]],\"Enchanted Hills\":[[\"12002\",\"North\",\"Enchanted Hills\"],[\"12515\",\"South\",\"Enchanted Hills\"]],\"36th St and La Cholla\":[[\"16045\",\"North\",\"36th St and La Cholla\"],[\"12514\",\"South\",\"36th St and La Cholla\"]],\"San Juan\":[[\"12004\",\"North\",\"San Juan\"],[\"12513\",\"South\",\"San Juan\"]],\"A Mountain Ctr\":[[\"12005\",\"North\",\"A Mountain Ctr\"],[\"12512\",\"South\",\"A Mountain Ctr\"]],\"San Marcos and La Cholla\":[[\"196\",\"North\",\"San Marcos and La Cholla\"],[\"199\",\"South\",\"San Marcos and La Cholla\"]],\"Cmo Santiago\":[[\"12006\",\"North\",\"Cmo Santiago\"],[\"12511\",\"South\",\"Cmo Santiago\"]],\"San Jacinto\":[[\"16206\",\"North\",\"San Jacinto\"],[\"16238\",\"South\",\"San Jacinto\"]],\"San Marcos and Mission\":[[\"12010\",\"North\",\"San Marcos and Mission\"],[\"12507\",\"South\",\"San Marcos and Mission\"]],\"Silverlake and Mission\":[[\"14633\",\"North\",\"Silverlake and Mission\"]],\"Silverlake Estates\":[[\"12011\",\"North\",\"Silverlake Estates\"]],\"Cottonwood\":[[\"12012\",\"North\",\"Cottonwood\"],[\"12426\",\"South\",\"Cottonwood\"]],\"Santa Cruz\":[[\"12013\",\"North\",\"Santa Cruz\"],[\"12425\",\"South\",\"Santa Cruz\"]],\"I-10 Interstate\":[[\"12014\",\"North\",\"I-10 Interstate\"],[\"12424\",\"South\",\"I-10 Interstate\"]],\"29th St and 11th Av\":[[\"12015\",\"North\",\"29th St and 11th Av\"],[\"12501\",\"South\",\"29th St and 11th Av\"]],\"10th Av\":[[\"12016\",\"North\",\"10th Av\"]],\"6th Av\":[[\"197\",\"North\",\"6th Av\"],[\"198\",\"South\",\"6th Av\"]],\"28th St\":[[\"12018\",\"North\",\"28th St\"]],\"26th St\":[[\"12019\",\"North\",\"26th St\"]],\"24th St\":[[\"12020\",\"North\",\"24th St\"]],\"22nd St\":[[\"12021\",\"North\",\"22nd St\"],[\"12497\",\"South\",\"22nd St\"]],\"20th St\":[[\"12022\",\"North\",\"20th St\"],[\"13069\",\"South\",\"20th St\"]],\"17th St\":[[\"12023\",\"North\",\"17th St\"],[\"12495\",\"South\",\"17th St\"]],\"15th St\":[[\"12024\",\"North\",\"15th St\"],[\"12494\",\"South\",\"15th St\"]],\"4th Av\":[[\"12025\",\"North\",\"4th Av\"]],\"Downtown\":[[\"14217\",\"North\",\"Downtown\"],[\"14217\",\"South\",\"Downtown\"]],\"Herbert\":[[\"12492\",\"South\",\"Herbert\"]],\"13th St\":[[\"12493\",\"South\",\"13th St\"]],\"25th St\":[[\"14951\",\"South\",\"25th St\"]],\"27th St\":[[\"12499\",\"South\",\"27th St\"]],\"29th St\":[[\"14490\",\"South\",\"29th St\"]],\"9th Av\":[[\"12500\",\"South\",\"9th Av\"]],\"County Jail\":[[\"12427\",\"South\",\"County Jail\"]],\"San Antonio\":[[\"12508\",\"South\",\"San Antonio\"]],\"Irvington and Mission\":[[\"14495\",\"South\",\"Irvington and Mission\"]],\"Irvington and 11th Av\":[[\"12542\",\"South\",\"Irvington and 11th Av\"]]};\nstopTables[24] = \n{\"Pantak\":[[\"15006\",\"North\",\"Pantak\"],[\"15006\",\"South\",\"Pantak\"]],\"Missiondale\":[[\"12043\",\"North\",\"Missiondale\"]],\"San Fernando\":[[\"12045\",\"North\",\"San Fernando\"]],\"Los Reales\":[[\"12046\",\"North\",\"Los Reales\"]],\"Marcus\":[[\"14832\",\"North\",\"Marcus\"]],\"Leary Dr\":[[\"14862\",\"North\",\"Leary Dr\"]],\"Medina\":[[\"12050\",\"North\",\"Medina\"]],\"Valencia\":[[\"12102\",\"North\",\"Valencia\"],[\"155\",\"South\",\"Valencia\"]],\"Santa Maria\":[[\"12104\",\"North\",\"Santa Maria\"],[\"12292\",\"South\",\"Santa Maria\"]],\"Bilby\":[[\"12106\",\"North\",\"Bilby\"]],\"C Alvord\":[[\"12107\",\"North\",\"C Alvord\"],[\"14952\",\"South\",\"C Alvord\"]],\"Drexel\":[[\"12108\",\"North\",\"Drexel\"],[\"12288\",\"South\",\"Drexel\"]],\"Canada St\":[[\"12109\",\"North\",\"Canada St\"]],\"12th Av and Nebraska\":[[\"12114\",\"North\",\"12th Av and Nebraska\"],[\"12285\",\"South\",\"12th Av and Nebraska\"]],\"Wyoming\":[[\"12115\",\"North\",\"Wyoming\"]],\"11th Av\":[[\"12542\",\"North\",\"11th Av\"]],\"Laos\":[[\"14229\",\"North\",\"Laos\"],[\"14229\",\"South\",\"Laos\"]],\"Utah\":[[\"12111\",\"South\",\"Utah\"]],\"Liberty and Nebraska\":[[\"14819\",\"South\",\"Liberty and Nebraska\"]],\"Canada Dr\":[[\"12287\",\"South\",\"Canada Dr\"]],\"Santa Rosa\":[[\"12290\",\"South\",\"Santa Rosa\"]],\"C Rita\":[[\"14833\",\"South\",\"C Rita\"]],\"Teton\":[[\"11935\",\"South\",\"Teton\"]],\"Inez\":[[\"11936\",\"South\",\"Inez\"]]};\nstopTables[25] = \n{\"Tucson Intl Airport\":[[\"118\",\"North\",\"Tucson Intl Airport\"],[\"118\",\"South\",\"Tucson Intl Airport\"]],\"Corona\":[[\"10945\",\"North\",\"Corona\"],[\"11048\",\"South\",\"Corona\"]],\"Elvira\":[[\"10946\",\"North\",\"Elvira\"],[\"11047\",\"South\",\"Elvira\"]],\"Medina\":[[\"10947\",\"North\",\"Medina\"],[\"11046\",\"South\",\"Medina\"]],\"Tucson Blvd\":[[\"12384\",\"North\",\"Tucson Blvd\"]],\"Campbell Av and Valencia\":[[\"14994\",\"North\",\"Campbell Av and Valencia\"]],\"Campbell Av and Bilby\":[[\"12385\",\"North\",\"Campbell Av and Bilby\"],[\"12371\",\"South\",\"Campbell Av and Bilby\"]],\"Bilby and Campbell\":[[\"12386\",\"North\",\"Bilby and Campbell\"],[\"12370\",\"South\",\"Bilby and Campbell\"]],\"Stewart\":[[\"12387\",\"North\",\"Stewart\"],[\"12369\",\"South\",\"Stewart\"]],\"Randall\":[[\"12388\",\"North\",\"Randall\"],[\"12368\",\"South\",\"Randall\"]],\"Park and Bilby\":[[\"57\",\"North\",\"Park and Bilby\"]],\"Alvord\":[[\"12389\",\"North\",\"Alvord\"],[\"12367\",\"South\",\"Alvord\"]],\"Drexel\":[[\"13050\",\"North\",\"Drexel\"],[\"12067\",\"South\",\"Drexel\"]],\"Minorka\":[[\"13051\",\"North\",\"Minorka\"],[\"12952\",\"South\",\"Minorka\"]],\"Bantam\":[[\"13052\",\"North\",\"Bantam\"],[\"12951\",\"South\",\"Bantam\"]],\"Wyoming\":[[\"13053\",\"North\",\"Wyoming\"],[\"12950\",\"South\",\"Wyoming\"]],\"Irvington and Park Av\":[[\"12707\",\"North\",\"Irvington and Park Av\"],[\"12707\",\"South\",\"Irvington and Park Av\"]],\"1st Av\":[[\"12708\",\"North\",\"1st Av\"],[\"12635\",\"North\",\"1st Av\"],[\"12708\",\"South\",\"1st Av\"],[\"12635\",\"South\",\"1st Av\"]],\"3rd Av\":[[\"12709\",\"North\",\"3rd Av\"],[\"12634\",\"North\",\"3rd Av\"],[\"12709\",\"South\",\"3rd Av\"],[\"12634\",\"South\",\"3rd Av\"]],\"Laos\":[[\"14227\",\"North\",\"Laos\"],[\"14755\",\"South\",\"Laos\"],[\"14227\",\"South\",\"Laos\"]],\"Irvington and 6th Av\":[[\"12633\",\"North\",\"Irvington and 6th Av\"],[\"12633\",\"South\",\"Irvington and 6th Av\"]],\"Irvington\":[[\"13054\",\"North\",\"Irvington\"],[\"14295\",\"South\",\"Irvington\"]],\"Ohio\":[[\"13055\",\"North\",\"Ohio\"],[\"12948\",\"South\",\"Ohio\"]],\"Sun Tran\":[[\"330\",\"North\",\"Sun Tran\"]],\"Palmdale\":[[\"13057\",\"North\",\"Palmdale\"]],\"Ajo\":[[\"58\",\"North\",\"Ajo\"],[\"67\",\"South\",\"Ajo\"],[\"12946\",\"South\",\"Ajo\"]],\"Tucson Marketplace\":[[\"13058\",\"North\",\"Tucson Marketplace\"],[\"16155\",\"South\",\"Tucson Marketplace\"]],\"35th St\":[[\"13060\",\"North\",\"35th St\"],[\"12943\",\"South\",\"35th St\"]],\"34rd St\":[[\"13061\",\"North\",\"34rd St\"]],\"31st St\":[[\"13062\",\"North\",\"31st St\"],[\"12941\",\"South\",\"31st St\"]],\"Silverlake\":[[\"13063\",\"North\",\"Silverlake\"],[\"12940\",\"South\",\"Silverlake\"]],\"25th St\":[[\"13064\",\"North\",\"25th St\"],[\"12939\",\"South\",\"25th St\"]],\"22nd St\":[[\"14017\",\"North\",\"22nd St\"],[\"14864\",\"North\",\"22nd St\"],[\"14018\",\"South\",\"22nd St\"]],\"19th St\":[[\"14370\",\"North\",\"19th St\"]],\"12th St\":[[\"14726\",\"North\",\"12th St\"],[\"10862\",\"South\",\"12th St\"]],\"Euclid\":[[\"10925\",\"North\",\"Euclid\"]],\"6th Av and Pennington\":[[\"42\",\"North\",\"6th Av and Pennington\"],[\"42\",\"South\",\"6th Av and Pennington\"]],\"Grossetta\":[[\"10858\",\"South\",\"Grossetta\"]],\"Church and Pennington\":[[\"10859\",\"South\",\"Church and Pennington\"]],\"Broadway and 6th Av\":[[\"16262\",\"South\",\"Broadway and 6th Av\"]],\"4th Av\":[[\"10861\",\"South\",\"4th Av\"]],\"18th St\":[[\"14867\",\"South\",\"18th St\"]],\"20th St\":[[\"12938\",\"South\",\"20th St\"]],\"34th St\":[[\"12942\",\"South\",\"34th St\"]],\"37th St\":[[\"12944\",\"South\",\"37th St\"]],\"Police Station\":[[\"12947\",\"South\",\"Police Station\"]],\"Bilby and Park Av\":[[\"14299\",\"South\",\"Bilby and Park Av\"]],\"Valencia and Campbell\":[[\"14995\",\"South\",\"Valencia and Campbell\"]],\"Tucson Bl and Valencia\":[[\"11045\",\"South\",\"Tucson Bl and Valencia\"]]};\nstopTables[26] = \n{\"Laos\":[[\"14219\",\"East\",\"Laos\"],[\"14219\",\"West\",\"Laos\"]],\"6th Av\":[[\"12633\",\"East\",\"6th Av\"]],\"3rd Av\":[[\"12634\",\"East\",\"3rd Av\"],[\"12709\",\"West\",\"3rd Av\"]],\"1st Av\":[[\"12635\",\"East\",\"1st Av\"],[\"12708\",\"West\",\"1st Av\"]],\"Park Av\":[[\"12637\",\"East\",\"Park Av\"],[\"12707\",\"West\",\"Park Av\"]],\"Mountain\":[[\"12638\",\"East\",\"Mountain\"],[\"12706\",\"West\",\"Mountain\"]],\"Highland\":[[\"12639\",\"East\",\"Highland\"]],\"Cherry\":[[\"12640\",\"East\",\"Cherry\"]],\"Irvington\":[[\"14324\",\"East\",\"Irvington\"],[\"12704\",\"West\",\"Irvington\"]],\"Wyoming\":[[\"12641\",\"East\",\"Wyoming\"]],\"Bantam\":[[\"12642\",\"East\",\"Bantam\"],[\"12702\",\"West\",\"Bantam\"]],\"Oregon\":[[\"12643\",\"East\",\"Oregon\"],[\"12701\",\"West\",\"Oregon\"]],\"Holladay\":[[\"12700\",\"East\",\"Holladay\"],[\"12644\",\"West\",\"Holladay\"]],\"Drexel and Campbell\":[[\"12645\",\"East\",\"Drexel and Campbell\"]],\"Jasmine\":[[\"12646\",\"East\",\"Jasmine\"],[\"12698\",\"West\",\"Jasmine\"]],\"Wilson\":[[\"12647\",\"East\",\"Wilson\"],[\"12697\",\"West\",\"Wilson\"]],\"Tucson\":[[\"14380\",\"East\",\"Tucson\"],[\"14381\",\"West\",\"Tucson\"]],\"Country Club MHP\":[[\"12649\",\"East\",\"Country Club MHP\"]],\"Country Club and Drexel\":[[\"16253\",\"East\",\"Country Club and Drexel\"]],\"Behan St\":[[\"16249\",\"East\",\"Behan St\"],[\"16250\",\"West\",\"Behan St\"]],\"Bantam Rd\":[[\"16251\",\"East\",\"Bantam Rd\"],[\"16252\",\"West\",\"Bantam Rd\"]],\"Masterson\":[[\"16254\",\"East\",\"Masterson\"],[\"16255\",\"West\",\"Masterson\"]],\"Palo Verde\":[[\"12659\",\"East\",\"Palo Verde\"],[\"12684\",\"West\",\"Palo Verde\"]],\"3562 E Benson\":[[\"14387\",\"East\",\"3562 E Benson\"],[\"12660\",\"West\",\"3562 E Benson\"]],\"Drexel and Rex Strav\":[[\"14425\",\"East\",\"Drexel and Rex Strav\"]],\"Drexel and Ray Strav\":[[\"14942\",\"East\",\"Drexel and Ray Strav\"]],\"Catalina\":[[\"12667\",\"East\",\"Catalina\"]],\"Belvedere and Ray Strav\":[[\"12668\",\"East\",\"Belvedere and Ray Strav\"]],\"Belvedere and Rex Strav\":[[\"12669\",\"East\",\"Belvedere and Rex Strav\"]],\"Belvedere and Benson Hwy\":[[\"219\",\"East\",\"Belvedere and Benson Hwy\"]],\"Columbus Blvd\":[[\"14931\",\"East\",\"Columbus Blvd\"]],\"Hartford Strav\":[[\"14802\",\"East\",\"Hartford Strav\"]],\"Alvernon and Benson Hwy\":[[\"14803\",\"East\",\"Alvernon and Benson Hwy\"]],\"White River\":[[\"14804\",\"East\",\"White River\"],[\"14424\",\"West\",\"White River\"]],\"Transcon Wy\":[[\"14805\",\"East\",\"Transcon Wy\"]],\"Valencia and Alvernon\":[[\"16133\",\"East\",\"Valencia and Alvernon\"],[\"14388\",\"West\",\"Valencia and Alvernon\"]],\"Swan\":[[\"14943\",\"East\",\"Swan\"]],\"Empire Vista\":[[\"14996\",\"East\",\"Empire Vista\"]],\"Craycroft\":[[\"12671\",\"East\",\"Craycroft\"]],\"Dream\":[[\"12672\",\"East\",\"Dream\"]],\"I-10 TTT\":[[\"209\",\"East\",\"I-10 TTT\"],[\"209\",\"West\",\"I-10 TTT\"]],\"Valencia and Benson Hwy\":[[\"14443\",\"West\",\"Valencia and Benson Hwy\"]],\"Columbus\":[[\"14865\",\"West\",\"Columbus\"]],\"Valencia\":[[\"16134\",\"West\",\"Valencia\"]],\"Antrim Loop\":[[\"14423\",\"West\",\"Antrim Loop\"]],\"Benson Hy and Alvernon\":[[\"12681\",\"West\",\"Benson Hy and Alvernon\"]],\"Benson Hy and Drexel\":[[\"12682\",\"West\",\"Benson Hy and Drexel\"]],\"Country Club\":[[\"16259\",\"West\",\"Country Club\"]],\"Campbell Av and Drexel\":[[\"12699\",\"West\",\"Campbell Av and Drexel\"]],\"Irvington and Campbell\":[[\"213\",\"West\",\"Irvington and Campbell\"]],\"C Ole\":[[\"14890\",\"West\",\"C Ole\"]]};\nstopTables[27] = \n{\"Casino del Sol Park & Ride S\":[[\"15951\",\"North\",\"Casino del Sol Park & Ride S\"],[\"15951\",\"South\",\"Casino del Sol Park & Ride S\"]],\"Mark\":[[\"15959\",\"North\",\"Mark\"],[\"15957\",\"South\",\"Mark\"]],\"Cmo de Oeste\":[[\"15960\",\"North\",\"Cmo de Oeste\"],[\"15956\",\"South\",\"Cmo de Oeste\"]],\"Settler Av\":[[\"16053\",\"North\",\"Settler Av\"]],\"Cmo de la Tierra\":[[\"15962\",\"North\",\"Cmo de la Tierra\"],[\"15953\",\"South\",\"Cmo de la Tierra\"]],\"Cardinal and Valencia\":[[\"16047\",\"North\",\"Cardinal and Valencia\"]],\"San Paulus\":[[\"16048\",\"North\",\"San Paulus\"]],\"Bilby\":[[\"16049\",\"North\",\"Bilby\"],[\"16050\",\"South\",\"Bilby\"]],\"Alvaro\":[[\"16051\",\"North\",\"Alvaro\"],[\"16052\",\"South\",\"Alvaro\"]],\"Drexel and Cardinal\":[[\"12557\",\"North\",\"Drexel and Cardinal\"]],\"Hildreth\":[[\"12558\",\"North\",\"Hildreth\"]],\"Westover\":[[\"12559\",\"North\",\"Westover\"],[\"12723\",\"South\",\"Westover\"]],\"Mission\":[[\"222\",\"North\",\"Mission\"],[\"223\",\"South\",\"Mission\"]],\"Oak Tree\":[[\"14436\",\"North\",\"Oak Tree\"]],\"Wood Crest Dr\":[[\"14437\",\"North\",\"Wood Crest Dr\"],[\"14692\",\"South\",\"Wood Crest Dr\"]],\"Midvale Park and Drexel\":[[\"12527\",\"North\",\"Midvale Park and Drexel\"]],\"Houchin\":[[\"12529\",\"North\",\"Houchin\"],[\"14354\",\"South\",\"Houchin\"]],\"Headley\":[[\"12530\",\"North\",\"Headley\"]],\"Walmart\":[[\"12531\",\"North\",\"Walmart\"],[\"14353\",\"South\",\"Walmart\"]],\"Midvale Park Rd\":[[\"230\",\"North\",\"Midvale Park Rd\"]],\"Pima College Desert Vista Campus\":[[\"193\",\"North\",\"Pima College Desert Vista Campus\"],[\"193\",\"South\",\"Pima College Desert Vista Campus\"]],\"Santa Louisa\":[[\"12533\",\"North\",\"Santa Louisa\"],[\"11985\",\"South\",\"Santa Louisa\"]],\"Santa Maria\":[[\"12534\",\"North\",\"Santa Maria\"],[\"11984\",\"South\",\"Santa Maria\"]],\"C Garcia\":[[\"12535\",\"North\",\"C Garcia\"],[\"11983\",\"South\",\"C Garcia\"]],\"Mossman\":[[\"12536\",\"North\",\"Mossman\"],[\"11982\",\"South\",\"Mossman\"]],\"C Ramona\":[[\"12537\",\"North\",\"C Ramona\"]],\"Santa Clara and Drexel\":[[\"14498\",\"North\",\"Santa Clara and Drexel\"],[\"14497\",\"South\",\"Santa Clara and Drexel\"]],\"12th Av and Drexel\":[[\"12108\",\"North\",\"12th Av and Drexel\"]],\"Canada St\":[[\"12109\",\"North\",\"Canada St\"]],\"12th Av and Nebraska\":[[\"12114\",\"North\",\"12th Av and Nebraska\"],[\"12285\",\"South\",\"12th Av and Nebraska\"]],\"Wyoming\":[[\"12115\",\"North\",\"Wyoming\"]],\"11th Av\":[[\"12542\",\"North\",\"11th Av\"]],\"Laos\":[[\"14221\",\"North\",\"Laos\"],[\"14221\",\"South\",\"Laos\"]],\"Utah\":[[\"12111\",\"South\",\"Utah\"]],\"Liberty and Nebraska\":[[\"14819\",\"South\",\"Liberty and Nebraska\"]],\"Canada Dr\":[[\"12287\",\"South\",\"Canada Dr\"]],\"12th Av\":[[\"14735\",\"South\",\"12th Av\"]],\"Milton\":[[\"11981\",\"South\",\"Milton\"]],\"Midvale Medical Ctr\":[[\"13984\",\"South\",\"Midvale Medical Ctr\"]],\"Midvale Park and Valencia\":[[\"194\",\"South\",\"Midvale Park and Valencia\"]],\"Bufkin\":[[\"14351\",\"South\",\"Bufkin\"]],\"Denning\":[[\"14919\",\"South\",\"Denning\"]],\"Cardinal and Drexel\":[[\"12547\",\"South\",\"Cardinal and Drexel\"]],\"Century Dr\":[[\"11103\",\"South\",\"Century Dr\"]],\"Valencia and Cardinal\":[[\"12552\",\"South\",\"Valencia and Cardinal\"]],\"Caballo Rd\":[[\"15955\",\"South\",\"Caballo Rd\"]],\"Casino del Sol\":[[\"16138\",\"South\",\"Casino del Sol\"]]};\nstopTables[29] = \n{\"Casino del Sol Park & Ride N\":[[\"16205\",\"East\",\"Casino del Sol Park & Ride N\"],[\"16205\",\"West\",\"Casino del Sol Park & Ride N\"]],\"Casino del Sol Park & Ride S\":[[\"15951\",\"East\",\"Casino del Sol Park & Ride S\"]],\"Valencia Rd\":[[\"16233\",\"East\",\"Valencia Rd\"]],\"Jeffrey Rd\":[[\"16228\",\"East\",\"Jeffrey Rd\"]],\"Los Reales and Cmo Cocoim\":[[\"16278\",\"East\",\"Los Reales and Cmo Cocoim\"]],\"C Vicam\":[[\"14598\",\"East\",\"C Vicam\"]],\"Cmo Benem\":[[\"16279\",\"East\",\"Cmo Benem\"]],\"Cmo Rahum\":[[\"14600\",\"East\",\"Cmo Rahum\"]],\"Cmo de Oeste and Los Reales\":[[\"14518\",\"East\",\"Cmo de Oeste and Los Reales\"]],\"Sparrow Av\":[[\"11091\",\"East\",\"Sparrow Av\"]],\"Caballo Rd\":[[\"16202\",\"East\",\"Caballo Rd\"],[\"16201\",\"West\",\"Caballo Rd\"]],\"Gila Ave\":[[\"14870\",\"East\",\"Gila Ave\"]],\"Tetakusim Rd\":[[\"11092\",\"East\",\"Tetakusim Rd\"]],\"Bolingbroke\":[[\"11093\",\"East\",\"Bolingbroke\"],[\"14001\",\"West\",\"Bolingbroke\"]],\"C de la Bajada\":[[\"11094\",\"East\",\"C de la Bajada\"]],\"Cmo Alegre\":[[\"11095\",\"East\",\"Cmo Alegre\"],[\"15928\",\"West\",\"Cmo Alegre\"]],\"Cardinal and Los Reales\":[[\"11096\",\"East\",\"Cardinal and Los Reales\"]],\"Tigre\":[[\"11097\",\"East\",\"Tigre\"]],\"Pajarito\":[[\"11098\",\"East\",\"Pajarito\"],[\"15005\",\"West\",\"Pajarito\"]],\"Pincushion\":[[\"11099\",\"East\",\"Pincushion\"]],\"Valencia and Cardinal\":[[\"238\",\"East\",\"Valencia and Cardinal\"]],\"Mission\":[[\"11105\",\"East\",\"Mission\"],[\"13987\",\"West\",\"Mission\"]],\"Sandpiper\":[[\"14950\",\"East\",\"Sandpiper\"]],\"Indian Agency Rd\":[[\"11107\",\"East\",\"Indian Agency Rd\"]],\"Midvale Park Rd\":[[\"230\",\"East\",\"Midvale Park Rd\"],[\"201\",\"West\",\"Midvale Park Rd\"]],\"Commerce Court\":[[\"11108\",\"East\",\"Commerce Court\"]],\"Pacheco\":[[\"11109\",\"East\",\"Pacheco\"]],\"San Fernando\":[[\"12051\",\"East\",\"San Fernando\"]],\"6th Av and Valencia\":[[\"240\",\"East\",\"6th Av and Valencia\"]],\"Valeska\":[[\"11111\",\"East\",\"Valeska\"],[\"13981\",\"West\",\"Valeska\"]],\"Bilby\":[[\"11112\",\"East\",\"Bilby\"],[\"13980\",\"West\",\"Bilby\"]],\"Delta\":[[\"11113\",\"East\",\"Delta\"],[\"13979\",\"West\",\"Delta\"]],\"Drexel\":[[\"207\",\"East\",\"Drexel\"],[\"208\",\"West\",\"Drexel\"]],\"Oregon St\":[[\"16273\",\"East\",\"Oregon St\"],[\"16271\",\"West\",\"Oregon St\"]],\"Nebraska and 6th Av\":[[\"14349\",\"East\",\"Nebraska and 6th Av\"]],\"Liberty and Nebraska\":[[\"11117\",\"East\",\"Liberty and Nebraska\"]],\"Wyoming\":[[\"14824\",\"East\",\"Wyoming\"]],\"Liberty and Irvington\":[[\"14823\",\"East\",\"Liberty and Irvington\"]],\"Laos\":[[\"14230\",\"East\",\"Laos\"],[\"14230\",\"West\",\"Laos\"]],\"Nogales Hy and Irvington\":[[\"13974\",\"West\",\"Nogales Hy and Irvington\"]],\"Thoroughbred and 6th Av\":[[\"16207\",\"West\",\"Thoroughbred and 6th Av\"]],\"6th Av and Nebraska\":[[\"12062\",\"West\",\"6th Av and Nebraska\"]],\"Missiondale\":[[\"229\",\"West\",\"Missiondale\"]],\"Fiesta\":[[\"13982\",\"West\",\"Fiesta\"]],\"12th Av\":[[\"13983\",\"West\",\"12th Av\"]],\"Midvale Medical Ctr\":[[\"13984\",\"West\",\"Midvale Medical Ctr\"]],\"Oak Tree\":[[\"14949\",\"West\",\"Oak Tree\"]],\"Headley\":[[\"14906\",\"West\",\"Headley\"]],\"Westover (old Cir. K)\":[[\"13988\",\"West\",\"Westover (old Cir. K)\"]],\"Hildreth\":[[\"13989\",\"West\",\"Hildreth\"]],\"Cardinal and Valencia\":[[\"231\",\"West\",\"Cardinal and Valencia\"]],\"Christopher Dr\":[[\"13996\",\"West\",\"Christopher Dr\"]],\"Los Reales and Cardinal\":[[\"15931\",\"West\",\"Los Reales and Cardinal\"]],\"Cmo de la Tierra\":[[\"14000\",\"West\",\"Cmo de la Tierra\"]],\"Beehive Av\":[[\"14002\",\"West\",\"Beehive Av\"]],\"Settler Av\":[[\"11085\",\"West\",\"Settler Av\"]],\"Cmo de Oeste\":[[\"234\",\"West\",\"Cmo de Oeste\"]],\"Cmo Potam  and C Tetakusim\":[[\"11086\",\"West\",\"Cmo Potam  and C Tetakusim\"]],\"Ball Field\":[[\"11087\",\"West\",\"Ball Field\"]],\"Cmo Tetaviecti\":[[\"14595\",\"West\",\"Cmo Tetaviecti\"]],\"C Torim and Cmo Cocoim\":[[\"16236\",\"West\",\"C Torim and Cmo Cocoim\"]],\"Wellness Center\":[[\"16210\",\"West\",\"Wellness Center\"]],\"C Torim\":[[\"16225\",\"West\",\"C Torim\"]],\"Ignacio Baumea and C Tetakusim\":[[\"16226\",\"West\",\"Ignacio Baumea and C Tetakusim\"]]};\nstopTables[34] = \n{\"29th St\":[[\"134\",\"North\",\"29th St\"],[\"134\",\"South\",\"29th St\"]],\"25th St\":[[\"12849\",\"North\",\"25th St\"]],\"Juarez\":[[\"12850\",\"North\",\"Juarez\"]],\"22nd St\":[[\"12851\",\"North\",\"22nd St\"],[\"12831\",\"South\",\"22nd St\"]],\"20th St\":[[\"12852\",\"North\",\"20th St\"],[\"15926\",\"South\",\"20th St\"]],\"Wilshire\":[[\"12853\",\"North\",\"Wilshire\"]],\"St Joseph Church\":[[\"12854\",\"North\",\"St Joseph Church\"]],\"Broadway\":[[\"14307\",\"North\",\"Broadway\"],[\"261\",\"South\",\"Broadway\"]],\"Burns\":[[\"14310\",\"North\",\"Burns\"]],\"Holmes\":[[\"12860\",\"North\",\"Holmes\"]],\"5th St\":[[\"12861\",\"North\",\"5th St\"],[\"12822\",\"South\",\"5th St\"]],\"Rosewood\":[[\"12862\",\"North\",\"Rosewood\"]],\"Speedway\":[[\"12864\",\"North\",\"Speedway\"],[\"12819\",\"South\",\"Speedway\"]],\"Fairmount\":[[\"12866\",\"North\",\"Fairmount\"],[\"14944\",\"South\",\"Fairmount\"]],\"Lee\":[[\"12867\",\"North\",\"Lee\"]],\"Pima\":[[\"12868\",\"North\",\"Pima\"],[\"12816\",\"South\",\"Pima\"]],\"Waverly\":[[\"12869\",\"North\",\"Waverly\"],[\"12814\",\"South\",\"Waverly\"]],\"Grant\":[[\"257\",\"North\",\"Grant\"],[\"12813\",\"South\",\"Grant\"]],\"Copper\":[[\"14311\",\"North\",\"Copper\"]],\"Sidney\":[[\"12871\",\"North\",\"Sidney\"]],\"Beverly\":[[\"12872\",\"North\",\"Beverly\"]],\"Rosemont\":[[\"12873\",\"North\",\"Rosemont\"]],\"Orlando\":[[\"16124\",\"North\",\"Orlando\"]],\"Swan and Glenn\":[[\"15002\",\"North\",\"Swan and Glenn\"]],\"Ft. Lowell\":[[\"14603\",\"North\",\"Ft. Lowell\"],[\"246\",\"South\",\"Ft. Lowell\"]],\"Camp Lowell and Swan\":[[\"14605\",\"North\",\"Camp Lowell and Swan\"]],\"Laurel\":[[\"14607\",\"North\",\"Laurel\"],[\"14610\",\"South\",\"Laurel\"]],\"Riverhaven\":[[\"12880\",\"North\",\"Riverhaven\"]],\"Sycamore\":[[\"12881\",\"North\",\"Sycamore\"]],\"Alvernon\":[[\"258\",\"North\",\"Alvernon\"]],\"Dodge\":[[\"12882\",\"North\",\"Dodge\"],[\"10994\",\"South\",\"Dodge\"]],\"Palo Verde\":[[\"12883\",\"North\",\"Palo Verde\"],[\"12800\",\"South\",\"Palo Verde\"]],\"Edith\":[[\"12884\",\"North\",\"Edith\"],[\"12799\",\"South\",\"Edith\"]],\"Country Club\":[[\"12885\",\"North\",\"Country Club\"],[\"12798\",\"South\",\"Country Club\"]],\"Fox Av\":[[\"16235\",\"North\",\"Fox Av\"]],\"Tucson\":[[\"12887\",\"North\",\"Tucson\"],[\"12796\",\"South\",\"Tucson\"]],\"Wilson\":[[\"12888\",\"North\",\"Wilson\"],[\"12795\",\"South\",\"Wilson\"]],\"Campbell\":[[\"12794\",\"North\",\"Campbell\"],[\"12889\",\"South\",\"Campbell\"]],\"Vine\":[[\"14892\",\"North\",\"Vine\"]],\"Mountain\":[[\"12891\",\"North\",\"Mountain\"],[\"12792\",\"South\",\"Mountain\"]],\"Fort Lowell and Navajo\":[[\"14909\",\"North\",\"Fort Lowell and Navajo\"]],\"1st Av\":[[\"16274\",\"North\",\"1st Av\"],[\"64\",\"South\",\"1st Av\"]],\"Fontana\":[[\"16275\",\"North\",\"Fontana\"],[\"16276\",\"South\",\"Fontana\"]],\"Stone and Navajo\":[[\"13736\",\"North\",\"Stone and Navajo\"]],\"Yavapai\":[[\"13737\",\"North\",\"Yavapai\"],[\"13748\",\"South\",\"Yavapai\"]],\"Prince\":[[\"12095\",\"North\",\"Prince\"],[\"13747\",\"South\",\"Prince\"]],\"Pastime\":[[\"13739\",\"North\",\"Pastime\"],[\"13746\",\"South\",\"Pastime\"]],\"Roger\":[[\"11500\",\"North\",\"Roger\"],[\"11550\",\"South\",\"Roger\"]],\"C Arizona\":[[\"13741\",\"North\",\"C Arizona\"]],\"Dorothy\":[[\"14925\",\"North\",\"Dorothy\"]],\"Tohono\":[[\"14242\",\"North\",\"Tohono\"],[\"14242\",\"South\",\"Tohono\"]],\"Wetmore\":[[\"11549\",\"South\",\"Wetmore\"]],\"Limberlost\":[[\"11904\",\"South\",\"Limberlost\"]],\"Stone\":[[\"16277\",\"South\",\"Stone\"]],\"Park\":[[\"12790\",\"South\",\"Park\"]],\"Cherry\":[[\"14904\",\"South\",\"Cherry\"]],\"2828 E Fort Lowell\":[[\"12797\",\"South\",\"2828 E Fort Lowell\"]],\"Winstel\":[[\"259\",\"South\",\"Winstel\"]],\"Av Laurel Real\":[[\"14933\",\"South\",\"Av Laurel Real\"]],\"Columbus\":[[\"14609\",\"South\",\"Columbus\"]],\"Camp Lowell\":[[\"14501\",\"South\",\"Camp Lowell\"]],\"Glenn and Swan\":[[\"12807\",\"South\",\"Glenn and Swan\"]],\"Arcadia\":[[\"12808\",\"South\",\"Arcadia\"]],\"Wyatt\":[[\"15945\",\"South\",\"Wyatt\"]],\"Cloverland\":[[\"12171\",\"South\",\"Cloverland\"]],\"Craycroft and Glenn\":[[\"12811\",\"South\",\"Craycroft and Glenn\"]],\"Silver\":[[\"12812\",\"South\",\"Silver\"]],\"3rd St\":[[\"14873\",\"South\",\"3rd St\"]],\"8th St\":[[\"12823\",\"South\",\"8th St\"]],\"Williams Blvd\":[[\"15938\",\"South\",\"Williams Blvd\"]],\"16th St\":[[\"12828\",\"South\",\"16th St\"]],\"26th St\":[[\"12832\",\"South\",\"26th St\"]],\"32nd St\":[[\"12834\",\"South\",\"32nd St\"],[\"12848\",\"South\",\"32nd St\"]],\"AF Base Gate\":[[\"14837\",\"South\",\"AF Base Gate\"]],\"Golf Links\":[[\"12847\",\"South\",\"Golf Links\"]]};\nstopTables[37] = \n{\"Pima College East Campus\":[[\"34\",\"North\",\"Pima College East Campus\"],[\"34\",\"South\",\"Pima College East Campus\"]],\"Constant\":[[\"14898\",\"North\",\"Constant\"],[\"14897\",\"South\",\"Constant\"]],\"Poinciana\":[[\"12613\",\"North\",\"Poinciana\"],[\"14887\",\"South\",\"Poinciana\"]],\"Dogwood\":[[\"12614\",\"North\",\"Dogwood\"],[\"12744\",\"South\",\"Dogwood\"]],\"Escalante\":[[\"14576\",\"North\",\"Escalante\"],[\"12743\",\"South\",\"Escalante\"]],\"Victoria\":[[\"14577\",\"North\",\"Victoria\"],[\"14587\",\"South\",\"Victoria\"]],\"Stella\":[[\"14579\",\"North\",\"Stella\"],[\"14585\",\"South\",\"Stella\"]],\"Lurlene\":[[\"14580\",\"North\",\"Lurlene\"],[\"14584\",\"South\",\"Lurlene\"]],\"Golf Links\":[[\"14455\",\"North\",\"Golf Links\"],[\"14456\",\"South\",\"Golf Links\"]],\"2121 S Pantano\":[[\"14733\",\"North\",\"2121 S Pantano\"],[\"14741\",\"South\",\"2121 S Pantano\"]],\"S Eastside Loop\":[[\"14920\",\"North\",\"S Eastside Loop\"],[\"14921\",\"South\",\"S Eastside Loop\"]],\"22nd St\":[[\"14624\",\"North\",\"22nd St\"],[\"266\",\"North\",\"22nd St\"],[\"15971\",\"South\",\"22nd St\"]],\"19th St\":[[\"13131\",\"North\",\"19th St\"],[\"13135\",\"South\",\"19th St\"]],\"Kenyon\":[[\"13136\",\"North\",\"Kenyon\"],[\"13130\",\"South\",\"Kenyon\"]],\"Scarlett\":[[\"13137\",\"North\",\"Scarlett\"],[\"13129\",\"South\",\"Scarlett\"]],\"Broadway\":[[\"14315\",\"North\",\"Broadway\"],[\"265\",\"South\",\"Broadway\"]],\"Canyon Creek Apts\":[[\"14361\",\"North\",\"Canyon Creek Apts\"]],\"5th St\":[[\"13139\",\"North\",\"5th St\"]],\"Rosewood\":[[\"14932\",\"North\",\"Rosewood\"]],\"Speedway\":[[\"13124\",\"North\",\"Speedway\"],[\"13142\",\"South\",\"Speedway\"]],\"Villa Rica\":[[\"14940\",\"North\",\"Villa Rica\"]],\"Pima\":[[\"13143\",\"North\",\"Pima\"],[\"13121\",\"South\",\"Pima\"]],\"Seneca\":[[\"14886\",\"North\",\"Seneca\"]],\"Pantano\":[[\"13240\",\"North\",\"Pantano\"],[\"13118\",\"South\",\"Pantano\"]],\"Pso Rancho Esperanza\":[[\"14786\",\"North\",\"Pso Rancho Esperanza\"],[\"14785\",\"South\",\"Pso Rancho Esperanza\"]],\"Tanque Verde\":[[\"85\",\"North\",\"Tanque Verde\"],[\"85\",\"South\",\"Tanque Verde\"]],\"Sabino Canyon\":[[\"14499\",\"South\",\"Sabino Canyon\"]],\"Cmo Pio Decimo\":[[\"13652\",\"South\",\"Cmo Pio Decimo\"]],\"Wrightstown\":[[\"13119\",\"South\",\"Wrightstown\"]],\"Fairmount\":[[\"13123\",\"South\",\"Fairmount\"]],\"3rd St\":[[\"15930\",\"South\",\"3rd St\"]],\"5th St(Entrada)\":[[\"13127\",\"South\",\"5th St(Entrada)\"]],\"CentrePark Dr\":[[\"13128\",\"South\",\"CentrePark Dr\"]],\"PantanoPkwy\":[[\"14908\",\"South\",\"PantanoPkwy\"]],\"34th St\":[[\"14627\",\"South\",\"34th St\"]]};\nstopTables[50] = \n{\"Mission\":[[\"268\",\"East\",\"Mission\"],[\"268\",\"West\",\"Mission\"]],\"Plaza Del Sol\":[[\"13010\",\"East\",\"Plaza Del Sol\"]],\"School@1573 W Ajo\":[[\"13011\",\"East\",\"School@1573 W Ajo\"]],\"Holiday Isle Blvd\":[[\"13012\",\"East\",\"Holiday Isle Blvd\"],[\"13034\",\"West\",\"Holiday Isle Blvd\"]],\"Valley Rd\":[[\"13013\",\"East\",\"Valley Rd\"]],\"16th Av\":[[\"13014\",\"East\",\"16th Av\"],[\"13032\",\"West\",\"16th Av\"]],\"12th Av\":[[\"13016\",\"East\",\"12th Av\"],[\"13031\",\"West\",\"12th Av\"]],\"Liberty\":[[\"13017\",\"East\",\"Liberty\"],[\"13030\",\"West\",\"Liberty\"]],\"6th Av and Ajo\":[[\"11689\",\"East\",\"6th Av and Ajo\"]],\"District\":[[\"11061\",\"East\",\"District\"],[\"10930\",\"West\",\"District\"]],\"Michigan\":[[\"11063\",\"East\",\"Michigan\"],[\"10929\",\"West\",\"Michigan\"]],\"Illinois\":[[\"11064\",\"East\",\"Illinois\"],[\"10928\",\"West\",\"Illinois\"]],\"Oklahoma\":[[\"11065\",\"East\",\"Oklahoma\"],[\"10927\",\"West\",\"Oklahoma\"]],\"Laos\":[[\"14220\",\"East\",\"Laos\"],[\"14220\",\"West\",\"Laos\"]],\"Liberty and Irvington\":[[\"14823\",\"West\",\"Liberty and Irvington\"]],\"6th Av and Irvington\":[[\"10926\",\"West\",\"6th Av and Irvington\"]],\"6th Av\":[[\"11561\",\"West\",\"6th Av\"]],\"Cottonwood\":[[\"13033\",\"West\",\"Cottonwood\"]],\"Phoebe\":[[\"13035\",\"West\",\"Phoebe\"]],\"Freedom Drive\":[[\"13036\",\"West\",\"Freedom Drive\"]],\"Mission and Ajo\":[[\"200\",\"West\",\"Mission and Ajo\"]],\"Cook\":[[\"13038\",\"West\",\"Cook\"]]};\nstopTables[61] = \n{\"Tohono\":[[\"14756\",\"North\",\"Tohono\"],[\"14756\",\"South\",\"Tohono\"]],\"Auto Mall Dr and Oracle\":[[\"11321\",\"North\",\"Auto Mall Dr and Oracle\"],[\"11438\",\"South\",\"Auto Mall Dr and Oracle\"]],\"Auto Sprint Rd\":[[\"16157\",\"North\",\"Auto Sprint Rd\"],[\"16158\",\"South\",\"Auto Sprint Rd\"]],\"Auto Mall Dr\":[[\"11324\",\"North\",\"Auto Mall Dr\"]],\"Lake\":[[\"11325\",\"North\",\"Lake\"]],\"Flowing Wells\":[[\"11326\",\"North\",\"Flowing Wells\"],[\"11433\",\"South\",\"Flowing Wells\"]],\"Pomona\":[[\"11327\",\"North\",\"Pomona\"]],\"Romero\":[[\"14881\",\"North\",\"Romero\"],[\"14884\",\"South\",\"Romero\"]],\"Seabrooke\":[[\"14882\",\"North\",\"Seabrooke\"]],\"Shamrock\":[[\"14883\",\"North\",\"Shamrock\"],[\"14877\",\"South\",\"Shamrock\"]],\"Ruthrauff\":[[\"11946\",\"North\",\"Ruthrauff\"]],\"Jay Av\":[[\"14749\",\"North\",\"Jay Av\"],[\"14748\",\"South\",\"Jay Av\"]],\"Curtis\":[[\"14617\",\"North\",\"Curtis\"],[\"14616\",\"South\",\"Curtis\"]],\"River Rd\":[[\"14752\",\"North\",\"River Rd\"],[\"14750\",\"South\",\"River Rd\"]],\"Sunset\":[[\"11947\",\"North\",\"Sunset\"],[\"11963\",\"South\",\"Sunset\"]],\"OracleJaynesStation\":[[\"14780\",\"North\",\"OracleJaynesStation\"],[\"14781\",\"South\",\"OracleJaynesStation\"]],\"Rudasill\":[[\"14799\",\"North\",\"Rudasill\"],[\"14800\",\"South\",\"Rudasill\"]],\"Hospital Dr.\":[[\"14716\",\"North\",\"Hospital Dr.\"],[\"14717\",\"South\",\"Hospital Dr.\"]],\"Orange Grove\":[[\"11948\",\"North\",\"Orange Grove\"],[\"11962\",\"South\",\"Orange Grove\"]],\"Labriego\":[[\"14615\",\"North\",\"Labriego\"],[\"14614\",\"South\",\"Labriego\"]],\"Omar\":[[\"14747\",\"North\",\"Omar\"],[\"14753\",\"South\",\"Omar\"]],\"Ina and La Cholla\":[[\"271\",\"North\",\"Ina and La Cholla\"]],\"2300 W Ina Road WB\":[[\"11359\",\"North\",\"2300 W Ina Road WB\"]],\"Crystal Cave\":[[\"12183\",\"North\",\"Crystal Cave\"]],\"Shama Wing\":[[\"11951\",\"North\",\"Shama Wing\"]],\"Shannon and Ina\":[[\"14829\",\"North\",\"Shannon and Ina\"]],\"Pima College Northwest\":[[\"14830\",\"North\",\"Pima College Northwest\"]],\"YMCA\":[[\"14831\",\"North\",\"YMCA\"]],\"Mona Lisa\":[[\"16209\",\"North\",\"Mona Lisa\"]],\"Foothills Mall Dr\":[[\"14631\",\"North\",\"Foothills Mall Dr\"],[\"14631\",\"South\",\"Foothills Mall Dr\"]],\"La Cholla and Ina\":[[\"14613\",\"South\",\"La Cholla and Ina\"]],\"Ruthrauff and La Cholla\":[[\"13920\",\"South\",\"Ruthrauff and La Cholla\"]],\"Laird Wy\":[[\"14878\",\"South\",\"Laird Wy\"]],\"Iroquois\":[[\"14879\",\"South\",\"Iroquois\"]],\"El Burrito\":[[\"11434\",\"South\",\"El Burrito\"]],\"Wetmore\":[[\"11435\",\"South\",\"Wetmore\"]],\"Wetmore and Oracle\":[[\"12157\",\"South\",\"Wetmore and Oracle\"]]};\nstopTables[401] = \n{\"Ina\":[[\"165\",\"North\",\"Ina\"],[\"165\",\"South\",\"Ina\"]],\"Oracle\":[[\"14757\",\"North\",\"Oracle\"]],\"SS and C Concordia and Shadow Mountain Dr\":[[\"14918\",\"North\",\"SS and C Concordia and Shadow Mountain Dr\"],[\"15968\",\"South\",\"SS and C Concordia and Shadow Mountain Dr\"]],\"1st Av (OroValley)\":[[\"12198\",\"North\",\"1st Av (OroValley)\"],[\"12218\",\"South\",\"1st Av (OroValley)\"]],\"SS and Oracle and 11085(SteamPump)\":[[\"15937\",\"North\",\"SS and Oracle and 11085(SteamPump)\"],[\"15937\",\"South\",\"SS and Oracle and 11085(SteamPump)\"]],\"SS and Tangarine and Innovation Park Dr\":[[\"16194\",\"North\",\"SS and Tangarine and Innovation Park Dr\"],[\"16194\",\"South\",\"SS and Tangarine and Innovation Park Dr\"]],\"Vistoso Commerce Pl\":[[\"16195\",\"North\",\"Vistoso Commerce Pl\"],[\"15974\",\"South\",\"Vistoso Commerce Pl\"]],\"Pusch Mountain View\":[[\"15925\",\"North\",\"Pusch Mountain View\"],[\"15925\",\"South\",\"Pusch Mountain View\"]],\"SS and Oracle and Golder Ranch Dr\":[[\"15964\",\"North\",\"SS and Oracle and Golder Ranch Dr\"],[\"15964\",\"South\",\"SS and Oracle and Golder Ranch Dr\"]],\"Northern\":[[\"14713\",\"South\",\"Northern\"]]};\nstopTables[410] = \n{\"SS and Anway Rd and Avra Valley Rd\":[[\"16069\",\"East\",\"SS and Anway Rd and Avra Valley Rd\"],[\"16069\",\"West\",\"SS and Anway Rd and Avra Valley Rd\"]],\"SS and Cocio Rd and El Cerrito Ln\":[[\"16070\",\"East\",\"SS and Cocio Rd and El Cerrito Ln\"],[\"16070\",\"West\",\"SS and Cocio Rd and El Cerrito Ln\"]],\"SS and Trico Rd and El Tiro Rd\":[[\"16071\",\"East\",\"SS and Trico Rd and El Tiro Rd\"],[\"16190\",\"West\",\"SS and Trico Rd and El Tiro Rd\"]],\"SS and Trico-Marana Rd and Sanders Rd\":[[\"16072\",\"East\",\"SS and Trico-Marana Rd and Sanders Rd\"],[\"16191\",\"West\",\"SS and Trico-Marana Rd and Sanders Rd\"]],\"SS and Swanson St and Sanders Rd\":[[\"16073\",\"East\",\"SS and Swanson St and Sanders Rd\"],[\"16073\",\"West\",\"SS and Swanson St and Sanders Rd\"]],\"SS\\/Marana\":[[\"16077\",\"East\",\"SS\\/Marana\"],[\"16077\",\"West\",\"SS\\/Marana\"]],\"SS and Sandario Rd and Trico Marana Rd\":[[\"16074\",\"East\",\"SS and Sandario Rd and Trico Marana Rd\"],[\"16192\",\"West\",\"SS and Sandario Rd and Trico Marana Rd\"]],\"SS and Grier Rd and Coach Spring Dr\":[[\"16075\",\"East\",\"SS and Grier Rd and Coach Spring Dr\"],[\"16075\",\"West\",\"SS and Grier Rd and Coach Spring Dr\"]],\"SS and Adonis Rd and Amole Ci\":[[\"16076\",\"West\",\"SS and Adonis Rd and Amole Ci\"]]};\nstopTables[411] = \n{\"Ina\":[[\"159\",\"North\",\"Ina\"],[\"159\",\"South\",\"Ina\"]],\"Oldfather\":[[\"281\",\"North\",\"Oldfather\"],[\"272\",\"South\",\"Oldfather\"]],\"Cortaro Road\":[[\"14917\",\"North\",\"Cortaro Road\"],[\"14917\",\"South\",\"Cortaro Road\"]],\"SS and Silverbell and Cortaro Rd\":[[\"16023\",\"North\",\"SS and Silverbell and Cortaro Rd\"],[\"16030\",\"South\",\"SS and Silverbell and Cortaro Rd\"]],\"SS and Silverbell and Twin Peaks\":[[\"16028\",\"North\",\"SS and Silverbell and Twin Peaks\"],[\"16028\",\"South\",\"SS and Silverbell and Twin Peaks\"]],\"SS and Sunflower Park and Sunflower Ridge\":[[\"16042\",\"North\",\"SS and Sunflower Park and Sunflower Ridge\"],[\"16042\",\"South\",\"SS and Sunflower Park and Sunflower Ridge\"]],\"SS and Coachline and Twin Peaks\":[[\"16193\",\"North\",\"SS and Coachline and Twin Peaks\"],[\"16027\",\"South\",\"SS and Coachline and Twin Peaks\"]],\"SS and Coachline and Rivulet Dr\":[[\"15970\",\"North\",\"SS and Coachline and Rivulet Dr\"],[\"15970\",\"South\",\"SS and Coachline and Rivulet Dr\"]],\"SS and Silverbell and Continental Reserve Lp\":[[\"16029\",\"South\",\"SS and Silverbell and Continental Reserve Lp\"]],\"SS and Schisler Dr and Mamie Kai Dr\":[[\"16031\",\"South\",\"SS and Schisler Dr and Mamie Kai Dr\"]]};\nstopTables[412] = \n{\"Tohono Transit Center\":[[\"16013\",\"North\",\"Tohono Transit Center\"],[\"16013\",\"South\",\"Tohono Transit Center\"]],\"River\":[[\"14494\",\"North\",\"River\"],[\"12902\",\"South\",\"River\"]],\"Stone\":[[\"11350\",\"North\",\"Stone\"]],\"Oracle\":[[\"14570\",\"North\",\"Oracle\"],[\"12236\",\"South\",\"Oracle\"]],\"SS and River and River Crossing Ln\":[[\"15976\",\"North\",\"SS and River and River Crossing Ln\"],[\"16108\",\"South\",\"SS and River and River Crossing Ln\"]],\"Hansen\":[[\"14571\",\"North\",\"Hansen\"],[\"14569\",\"South\",\"Hansen\"]],\"SS and River and La Canada\":[[\"16106\",\"North\",\"SS and River and La Canada\"]],\"SS and River and La Cholla\":[[\"16107\",\"North\",\"SS and River and La Cholla\"],[\"16105\",\"South\",\"SS and River and La Cholla\"]],\"SS and Shannon and Master Pieces Dr\":[[\"14964\",\"North\",\"SS and Shannon and Master Pieces Dr\"],[\"14964\",\"South\",\"SS and Shannon and Master Pieces Dr\"]],\"SS and Orange Grove and Cmo de la Tierra\":[[\"14965\",\"North\",\"SS and Orange Grove and Cmo de la Tierra\"],[\"14985\",\"South\",\"SS and Orange Grove and Cmo de la Tierra\"]],\"SS and Orange Grove and Thornydale\":[[\"16081\",\"North\",\"SS and Orange Grove and Thornydale\"],[\"14983\",\"South\",\"SS and Orange Grove and Thornydale\"]],\"SS and Thornydale and Horizon Hills Dr\":[[\"14984\",\"North\",\"SS and Thornydale and Horizon Hills Dr\"],[\"15977\",\"South\",\"SS and Thornydale and Horizon Hills Dr\"]],\"Ina\":[[\"159\",\"North\",\"Ina\"],[\"159\",\"South\",\"Ina\"]],\"SS and Thornydale and Ina Rd\":[[\"16036\",\"North\",\"SS and Thornydale and Ina Rd\"]],\"SS and Thornydale and Massingale Rd\":[[\"16037\",\"North\",\"SS and Thornydale and Massingale Rd\"],[\"16035\",\"South\",\"SS and Thornydale and Massingale Rd\"]],\"SS and Thornydale and Linda Vista Bl\":[[\"16039\",\"North\",\"SS and Thornydale and Linda Vista Bl\"],[\"16033\",\"South\",\"SS and Thornydale and Linda Vista Bl\"]],\"Ina Rd\":[[\"14155\",\"South\",\"Ina Rd\"]],\"La Canada\":[[\"14483\",\"South\",\"La Canada\"]]};\nstopTables[413] = \n{\"Ina\":[[\"159\",\"North\",\"Ina\"],[\"159\",\"South\",\"Ina\"]],\"Oldfather\":[[\"281\",\"North\",\"Oldfather\"],[\"272\",\"South\",\"Oldfather\"]],\"Cortaro Road\":[[\"14917\",\"North\",\"Cortaro Road\"],[\"14917\",\"South\",\"Cortaro Road\"]],\"SS\\/Marana\":[[\"16198\",\"North\",\"SS\\/Marana\"],[\"16198\",\"South\",\"SS\\/Marana\"]],\"SS and Lon Adams and Grier Rd\":[[\"16098\",\"South\",\"SS and Lon Adams and Grier Rd\"]],\"SS and Sandario Rd and Grier Rd\":[[\"15587\",\"South\",\"SS and Sandario Rd and Grier Rd\"]],\"SS and Water St and Campbell St\":[[\"16078\",\"South\",\"SS and Water St and Campbell St\"]]};\nstopTables[421] = \n{\"SS and Park Centre Av and Continental Rd\":[[\"15983\",\"North\",\"SS and Park Centre Av and Continental Rd\"],[\"15983\",\"South\",\"SS and Park Centre Av and Continental Rd\"]],\"SS and Trader Ln and Front St\":[[\"15982\",\"North\",\"SS and Trader Ln and Front St\"],[\"15982\",\"South\",\"SS and Trader Ln and Front St\"]],\"SS and Nogales Hy and Abrego Dr\":[[\"15978\",\"North\",\"SS and Nogales Hy and Abrego Dr\"],[\"15978\",\"South\",\"SS and Nogales Hy and Abrego Dr\"]],\"SS and Sahuarita Rd and Desert Gem\":[[\"15979\",\"North\",\"SS and Sahuarita Rd and Desert Gem\"],[\"15979\",\"South\",\"SS and Sahuarita Rd and Desert Gem\"]],\"SS and Rancho Sahuarita Bl and Sahuarita Rd\":[[\"15989\",\"North\",\"SS and Rancho Sahuarita Bl and Sahuarita Rd\"],[\"15989\",\"South\",\"SS and Rancho Sahuarita Bl and Sahuarita Rd\"]],\"SS and Pima Mine Rd and I-19\":[[\"15999\",\"North\",\"SS and Pima Mine Rd and I-19\"],[\"15999\",\"South\",\"SS and Pima Mine Rd and I-19\"]],\"6th Av\":[[\"14516\",\"North\",\"6th Av\"],[\"14516\",\"South\",\"6th Av\"]]};\nstopTables[430] = \n{\"SS and Bopp Rd and San Joaquin Rd\":[[\"16062\",\"East\",\"SS and Bopp Rd and San Joaquin Rd\"],[\"16062\",\"West\",\"SS and Bopp Rd and San Joaquin Rd\"]],\"SS and Cmo Verde and Old Ajo Hwy\":[[\"16063\",\"East\",\"SS and Cmo Verde and Old Ajo Hwy\"]],\"SS and Branding Iron Ci and Lightning L Pl\":[[\"16064\",\"East\",\"SS and Branding Iron Ci and Lightning L Pl\"]],\"SS and Sunset Bl and Louisiana(Irvington)\":[[\"16066\",\"East\",\"SS and Sunset Bl and Louisiana(Irvington)\"]],\"SS and Irvington and Butts(Sheridan)\":[[\"16067\",\"East\",\"SS and Irvington and Butts(Sheridan)\"]],\"SS and Irvington and Mission\":[[\"16199\",\"East\",\"SS and Irvington and Mission\"],[\"16056\",\"West\",\"SS and Irvington and Mission\"]],\"SS and C Don Miguel and Cmo de Oeste\":[[\"16058\",\"West\",\"SS and C Don Miguel and Cmo de Oeste\"]],\"SS and Kinney Rd and Bopp Rd\":[[\"16059\",\"West\",\"SS and Kinney Rd and Bopp Rd\"]],\"SS and Western Way Ci and Kinney Rd\":[[\"16060\",\"West\",\"SS and Western Way Ci and Kinney Rd\"]],\"SS and Bopp Rd and Thornton(Donald)\":[[\"16061\",\"West\",\"SS and Bopp Rd and Thornton(Donald)\"]]};\nstopTables[440] = \n{\"SS and San Xavier and Little Nogales\":[[\"16084\",\"North\",\"SS and San Xavier and Little Nogales\"],[\"16084\",\"South\",\"SS and San Xavier and Little Nogales\"]],\"SS\\/Stock\":[[\"16085\",\"North\",\"SS\\/Stock\"]],\"SS and Little Nogales Dr and Campus Dr\":[[\"16086\",\"North\",\"SS and Little Nogales Dr and Campus Dr\"]],\"SS and Campus Dr and Mission Rd\":[[\"16087\",\"North\",\"SS and Campus Dr and Mission Rd\"]],\"SS and Mission and San Xavier\":[[\"16109\",\"North\",\"SS and Mission and San Xavier\"]],\"Mission\":[[\"11105\",\"North\",\"Mission\"]],\"Midvale Park Rd\":[[\"230\",\"North\",\"Midvale Park Rd\"],[\"201\",\"South\",\"Midvale Park Rd\"]],\"Valencia\":[[\"12102\",\"North\",\"Valencia\"]],\"12th Av\":[[\"13983\",\"South\",\"12th Av\"]],\"SS and Mission and Valencia\":[[\"16082\",\"South\",\"SS and Mission and Valencia\"]],\"SS and San Xavier and Mission Rd\":[[\"16083\",\"South\",\"SS and San Xavier and Mission Rd\"]]};\nstopTables[486] = \n{\"5th St\":[[\"16097\",\"East\",\"5th St\"],[\"16097\",\"West\",\"5th St\"]],\"SS and State Hwy 86 and Why\":[[\"16096\",\"East\",\"SS and State Hwy 86 and Why\"],[\"16096\",\"West\",\"SS and State Hwy 86 and Why\"]],\"SS and State Hwy 86 and GunSight Valley\":[[\"16094\",\"East\",\"SS and State Hwy 86 and GunSight Valley\"],[\"16094\",\"West\",\"SS and State Hwy 86 and GunSight Valley\"]],\"SS and State Hwy 86 and Hickiwan IR 34\":[[\"16093\",\"East\",\"SS and State Hwy 86 and Hickiwan IR 34\"],[\"16093\",\"West\",\"SS and State Hwy 86 and Hickiwan IR 34\"]],\"SS and State Hwy 86 and San Simon\":[[\"16092\",\"East\",\"SS and State Hwy 86 and San Simon\"],[\"16092\",\"West\",\"SS and State Hwy 86 and San Simon\"]],\"SS and State Hwy 86 and Quijotoa IR 15\":[[\"16090\",\"East\",\"SS and State Hwy 86 and Quijotoa IR 15\"],[\"16090\",\"West\",\"SS and State Hwy 86 and Quijotoa IR 15\"]],\"SS and State Hwy 86 and Sells IR 19\":[[\"16089\",\"East\",\"SS and State Hwy 86 and Sells IR 19\"],[\"16089\",\"West\",\"SS and State Hwy 86 and Sells IR 19\"]],\"SS and State Hwy 86 and Robles Jct\":[[\"16088\",\"East\",\"SS and State Hwy 86 and Robles Jct\"],[\"16088\",\"West\",\"SS and State Hwy 86 and Robles Jct\"]]};\nstopTables[700] = \n{\"Congress St\":[[\"16173\",\"East\",\"Congress St\"],[\"16173\",\"West\",\"Congress St\"]],\"Frontage Rd\":[[\"16174\",\"East\",\"Frontage Rd\"],[\"16174\",\"West\",\"Frontage Rd\"]],\"Cushing\":[[\"16179\",\"East\",\"Cushing\"]],\"Granada Av\":[[\"16175\",\"East\",\"Granada Av\"],[\"16176\",\"West\",\"Granada Av\"]],\"Church\":[[\"274\",\"East\",\"Church\"],[\"11526\",\"West\",\"Church\"]],\"Stone\":[[\"16177\",\"East\",\"Stone\"],[\"16178\",\"West\",\"Stone\"]],\"6th Av\":[[\"10860\",\"East\",\"6th Av\"],[\"14516\",\"West\",\"6th Av\"]],\"Congress\":[[\"16180\",\"East\",\"Congress\"]],\"9th St\":[[\"16181\",\"East\",\"9th St\"],[\"16181\",\"West\",\"9th St\"]],\"7th St\":[[\"16182\",\"East\",\"7th St\"],[\"16182\",\"West\",\"7th St\"]],\"5th St\":[[\"16183\",\"East\",\"5th St\"],[\"16183\",\"West\",\"5th St\"]],\"3rd Av\":[[\"16184\",\"East\",\"3rd Av\"],[\"16184\",\"West\",\"3rd Av\"]],\"Tyndall\":[[\"16185\",\"East\",\"Tyndall\"],[\"16185\",\"West\",\"Tyndall\"]],\"Olive Av\":[[\"16101\",\"East\",\"Olive Av\"],[\"16101\",\"West\",\"Olive Av\"]],\"Highland Av\":[[\"16186\",\"East\",\"Highland Av\"],[\"16186\",\"West\",\"Highland Av\"]],\"Cherry Av\":[[\"15151\",\"East\",\"Cherry Av\"],[\"15151\",\"West\",\"Cherry Av\"]],\"Warren\":[[\"15101\",\"East\",\"Warren\"],[\"15101\",\"West\",\"Warren\"]],\"Av del Convento\":[[\"16187\",\"West\",\"Av del Convento\"]]};\n\nmsg.stopTables = stopTables;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 209,
+        "y": 194,
+        "wires": [
+            [
+                "b07b7b9d.b5fd88"
+            ]
+        ]
+    },
+    {
+        "id": "363ae103.1247ee",
+        "type": "function",
+        "z": "6d2a1121.6e356",
+        "name": "get stopId",
+        "func": "msg.stopId = msg.stopInfo[0];\nmsg.stopDir = msg.stopInfo[1];\nmsg.stopFullName = msg.stopInfo[2];\nmsg.select = '#toolsContentLeftInterior tr.next-bus:contains(' + msg.stopDir + ') td:nth-child(4)';\nmsg.url = 'https://vps3.yoursunny.com/suntran-proxy/hiwire?.a=iNextBusResults&StopId=' + msg.stopId;\n\n// XXX\n//msg.url += '&Date=01-13-2017';\n//msg.select = '#toolsContentLeftInterior tr.next-bus:contains(' + msg.stopDir + ') td:nth-child(3)';\n\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 470,
+        "y": 43,
+        "wires": [
+            [
+                "18cdd1a2.28a79e"
+            ]
+        ]
+    },
+    {
+        "id": "d566ea98.aaf8e8",
+        "type": "function",
+        "z": "dc14fea.aa89a",
+        "name": "get stop 2",
+        "func": "msg.stopInfo = msg.stopInfos[1];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 375,
+        "y": 696,
+        "wires": [
+            [
+                "6814a45f.8b1dbc"
+            ]
+        ]
+    },
+    {
+        "id": "6814a45f.8b1dbc",
+        "type": "subflow:6d2a1121.6e356",
+        "z": "dc14fea.aa89a",
+        "name": "get departures 2",
+        "x": 561.5,
+        "y": 697.5,
+        "wires": [
+            [
+                "eee6d549.9df718"
+            ],
+            [
+                "759c1baf.d5fee4"
+            ]
+        ]
+    },
+    {
+        "id": "c9b5a48e.993068",
+        "type": "switch",
+        "z": "dc14fea.aa89a",
+        "name": "has stop 2?",
+        "property": "stopInfos.length",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 156,
+        "y": 710,
+        "wires": [
+            [
+                "d566ea98.aaf8e8"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "f158f44f.394188",
+        "type": "change",
+        "z": "dc14fea.aa89a",
+        "name": "save departures 1",
+        "rules": [
+            {
+                "t": "set",
+                "p": "departures1",
+                "pt": "msg",
+                "to": "departures",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 694,
+        "y": 614,
+        "wires": [
+            [
+                "c9b5a48e.993068"
+            ]
+        ]
+    },
+    {
+        "id": "eee6d549.9df718",
+        "type": "change",
+        "z": "dc14fea.aa89a",
+        "name": "save departures 2",
+        "rules": [
+            {
+                "t": "set",
+                "p": "departures2",
+                "pt": "msg",
+                "to": "departures",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 796,
+        "y": 698,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fe25fe88.e808b",
+        "type": "switch",
+        "z": "6d2a1121.6e356",
+        "name": "is no service?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "no service",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 681,
+        "y": 302,
+        "wires": [
+            [
+                "125360f6.c97e3f"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "125360f6.c97e3f",
+        "type": "change",
+        "z": "6d2a1121.6e356",
+        "name": "set empty departures",
+        "rules": [
+            {
+                "t": "set",
+                "p": "departures",
+                "pt": "msg",
+                "to": "[]",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 892,
+        "y": 270,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8f0f84f9.b4c728",
+        "type": "subflow:dc14fea.aa89a",
+        "z": "c11cf734.fe8e28",
+        "x": 663,
+        "y": 700,
+        "wires": [
+            [
+                "51b70b6a.60f924"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "9bcb455b.8a5e28",
+        "type": "function",
+        "z": "c11cf734.fe8e28",
+        "name": "add card",
+        "func": "function joinTimes(departures) {\n    if (!departures || departures.length == 0) {\n        return ' no more';\n    }\n\n    var b = '';\n    for (var i = 0; i < departures.length; ++i) {\n        if (i > 0) {\n            b += ',';\n        }\n        var t = departures[i].split(' ');\n        b += ' ' + t[0] + ':' + t[1] + t[2];\n    }\n    return b;\n}\n\nvar routeName = 'route ' + msg.route;\nif (msg.route == '700') {\n    routeName = 'Sun Link';\n}\n\nmsg.card = {\n    type: 'Simple',\n    title: routeName + ' @ ' + msg.stopFullName,\n    content: msg.stopInfos[0][1] + ':' + joinTimes(msg.departures1)\n};\n\nif (msg.stopInfos.length > 1) {\n    msg.card.content += '\\n' + msg.stopInfos[1][1] + ':' + joinTimes(msg.departures2);\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 876,
+        "y": 443,
+        "wires": [
+            [
+                "2eccfa83.8540f6"
+            ]
+        ]
+    }
+]
